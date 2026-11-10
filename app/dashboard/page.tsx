@@ -15,21 +15,21 @@ export default async function UserDashboard() {
     supabase.from("saved_verses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("prayer_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("reading_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
     supabase.from("user_reading_plans").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
     supabase.from("saved_verses").select("id, reference, verse_text, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("prayer_entries").select("id, title, content, is_answered, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
   ]);
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
   const profileInitial = displayName.trim().charAt(0).toUpperCase() || "U";
-  const dayKeys = [...new Set((progressDays.data ?? []).map((item) => { const d = new Date(item.completed_at); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }))].sort((a,b) => new Date(a).getTime() - new Date(b).getTime());
-  const dateKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-  const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
-  let currentStreak = 0; let cursor = dayKeys.includes(dateKey(today)) ? new Date(today) : dayKeys.includes(dateKey(yesterday)) ? new Date(yesterday) : null;
-  while (cursor && dayKeys.includes(dateKey(cursor))) { currentStreak++; cursor.setDate(cursor.getDate()-1); }
-  let longestStreak = 0, run = 0, previous: Date | null = null;
-  for (const key of dayKeys) { const [y,m,day] = key.split("-").map(Number); const current = new Date(y,m,day); if (previous) { const gap = Math.round((current.getTime()-previous.getTime())/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=current; }
+  const dayKeys = new Set((progressDays.data ?? []).map((item) => { const d = new Date(item.completed_at); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }));
+  const today = new Date(); const todayKey = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const yesterday = new Date(todayKey); yesterday.setDate(yesterday.getDate()-1);
+  let currentStreak = 0; let cursor = dayKeys.has(todayKey) ? new Date(todayKey) : dayKeys.has(yesterday.getTime()) ? new Date(yesterday) : null;
+  while (cursor && dayKeys.has(cursor.getTime())) { currentStreak++; cursor.setDate(cursor.getDate()-1); }
+  let longestStreak = 0, run = 0, previous: number | null = null;
+  for (const stamp of [...dayKeys].sort((a,b)=>a-b)) { if (previous !== null) { const gap = Math.round((stamp-previous)/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=stamp; }
   const stats = [
     { label: "Current streak", value: `${currentStreak} ${currentStreak === 1 ? "day" : "days"}`, icon: Flame },
     { label: "Longest streak", value: `${longestStreak} ${longestStreak === 1 ? "day" : "days"}`, icon: CalendarDays },
