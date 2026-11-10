@@ -40,7 +40,7 @@ export default function HomePage() {
   const [dark, setDark] = useState(false);
   const [search, setSearch] = useState("");
   const [verseIndex, setVerseIndex] = useState(0);
-  const [saved, setSaved] = useState<string[]>(["Psalm 23:1"]);
+  const [saved, setSaved] = useState<string[]>([]);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showPrayer, setShowPrayer] = useState(false);
@@ -69,6 +69,15 @@ export default function HomePage() {
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "U");
       setProfileLabel(displayName);
       setAvatarUrl(profile?.avatar_url || "");
+      const [{ data: savedRows }, { data: prayerRows }, { data: planRows }] = await Promise.all([
+        supabase.from("saved_verses").select("reference, verse_id").eq("user_id", user.id),
+        supabase.from("prayer_entries").select("content").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
+        supabase.from("user_reading_plans").select("plan_slug").eq("user_id", user.id),
+      ]);
+      if (!active) return;
+      setSaved((savedRows || []).map(row => row.reference || row.verse_id));
+      setPrayers((prayerRows || []).map(row => row.content));
+      setStartedPlans((planRows || []).map(row => row.plan_slug));
       const { data: progress } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(400);
       if (!active) return;
       const days = new Set((progress || []).map(item => { const dt = new Date(item.completed_at); return `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`; }));
@@ -90,9 +99,48 @@ export default function HomePage() {
     setNotice(message);
     window.setTimeout(() => setNotice(""), 2600);
   }
-  function toggleSaved(ref: string) {
-    setSaved(prev => prev.includes(ref) ? prev.filter(x => x !== ref) : [...prev, ref]);
-    notify(saved.includes(ref) ? "Removed from your saved verses" : "Verse saved to your library");
+  async function toggleSaved(ref: string) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "/auth"; return; }
+    if (saved.includes(ref)) {
+      const { error } = await supabase.from("saved_verses").delete().eq("user_id", user.id).eq("verse_id", ref);
+      if (error) { notify(error.message); return; }
+      setSaved(prev => prev.filter(x => x !== ref)); notify("Removed from your saved verses");
+    } else {
+      const verse = verses.find(item => item.ref === ref);
+      const { error } = await supabase.from("saved_verses").upsert({ user_id: user.id, bible_id: "orpath-sample", verse_id: ref, reference: ref, verse_text: verse?.text || "" }, { onConflict: "user_id,bible_id,verse_id" });
+      if (error) { notify(error.message); return; }
+      setSaved(prev => [...prev, ref]); notify("Verse saved to your library");
+    }
+  }
+
+  async function savePrayerEntry(fromModal = false) {
+    if (!prayer.trim()) { notify("Write a prayer first"); return; }
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "/auth"; return; }
+    const entry = prayer.trim();
+    const { error } = await supabase.from("prayer_entries").insert({ user_id: user.id, title: "Personal prayer", content: entry });
+    if (error) { notify(error.message); return; }
+    setPrayers(prev => [entry, ...prev]); setPrayer("");
+    if (fromModal) { setShowPrayer(false); nav("Prayer"); }
+    notify("Your prayer has been saved privately");
+  }
+
+  async function togglePlan(planSlug: string) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "/auth"; return; }
+    if (startedPlans.includes(planSlug)) {
+      const { error } = await supabase.from("user_reading_plans").delete().eq("user_id", user.id).eq("plan_slug", planSlug);
+      if (error) { notify(error.message); return; }
+      setStartedPlans(prev => prev.filter(item => item !== planSlug)); notify("Plan removed from your journey");
+    } else {
+      const { error } = await supabase.from("user_reading_plans").upsert({ user_id: user.id, plan_slug: planSlug }, { onConflict: "user_id,plan_slug" });
+      if (error) { notify(error.message); return; }
+      setStartedPlans(prev => [...prev, planSlug]); notify("Plan added to your journey");
+    }
   }
   function nav(next: Tab) {
     setTab(next);
@@ -165,18 +213,18 @@ export default function HomePage() {
 
           {tab === "Read" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SCRIPTURE, AT YOUR PACE</span><h1>Open the <em>Word.</em></h1><p>Take your time. Read slowly. Let each passage find its place.</p></div><BibleReader /></section>}
 
-          {tab === "Plans" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SMALL STEPS, DEEP ROOTS</span><h1>Find your <em>rhythm.</em></h1><p>Thoughtful reading journeys for every season of your faith.</p></div><div className="plan-feature"><div><span className="section-kicker">A GENTLE PLACE TO BEGIN</span><h2>Start with stillness.</h2><p>Five days of Scripture and reflection to help you slow down, listen, and rest in God&apos;s presence.</p><button className="solid-button" onClick={()=>{setStartedPlans(p=>p.includes("A Quiet Heart")?p.filter(x=>x!=="A Quiet Heart"):[...p,"A Quiet Heart"]);notify(startedPlans.includes("A Quiet Heart")?"Plan removed":"Your plan is ready to begin");}}>{startedPlans.includes("A Quiet Heart") ? <><Check size={16}/> Added to your plans</> : <>Begin this plan <ArrowRight size={16}/></>}</button></div><div className="plan-art"><span>✳</span><div className="plan-orbit orbit-one"/><div className="plan-orbit orbit-two"/></div></div><div className="section-heading"><div><span className="section-kicker">MADE FOR YOUR WALK</span><h2>Reading journeys</h2></div><span className="results-count">{plans.length} starter plans</span></div><div className="plans-list">{plans.map((p,i)=><article className="plan-row" key={p.title}><div className={"plan-symbol "+p.color}>{p.icon}</div><div className="plan-info"><span>0{i+1} · {p.detail.split(" · ")[0].toUpperCase()}</span><h3>{p.title}</h3><p>{p.detail.split(" · ")[1]}</p></div><button className={startedPlans.includes(p.title)?"plan-started":"plan-action"} onClick={()=>{setStartedPlans(prev=>prev.includes(p.title)?prev.filter(x=>x!==p.title):[...prev,p.title]);notify(startedPlans.includes(p.title)?"Plan removed":"Plan added to your journey");}}>{startedPlans.includes(p.title)?<Check size={17}/>:<Plus size={18}/>}</button></article>)}</div><p className="reader-disclaimer">Starter plan concepts are demonstrations. Full daily readings and progress syncing will be added with the content system.</p></section>}
+          {tab === "Plans" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SMALL STEPS, DEEP ROOTS</span><h1>Find your <em>rhythm.</em></h1><p>Thoughtful reading journeys for every season of your faith.</p></div><div className="plan-feature"><div><span className="section-kicker">A GENTLE PLACE TO BEGIN</span><h2>Start with stillness.</h2><p>Five days of Scripture and reflection to help you slow down, listen, and rest in God&apos;s presence.</p><button className="solid-button" onClick={()=>void togglePlan("A Quiet Heart")}>{startedPlans.includes("A Quiet Heart") ? <><Check size={16}/> Added to your plans</> : <>Begin this plan <ArrowRight size={16}/></>}</button></div><div className="plan-art"><span>✳</span><div className="plan-orbit orbit-one"/><div className="plan-orbit orbit-two"/></div></div><div className="section-heading"><div><span className="section-kicker">MADE FOR YOUR WALK</span><h2>Reading journeys</h2></div><span className="results-count">{plans.length} starter plans</span></div><div className="plans-list">{plans.map((p,i)=><article className="plan-row" key={p.title}><div className={"plan-symbol "+p.color}>{p.icon}</div><div className="plan-info"><span>0{i+1} · {p.detail.split(" · ")[0].toUpperCase()}</span><h3>{p.title}</h3><p>{p.detail.split(" · ")[1]}</p></div><button className={startedPlans.includes(p.title)?"plan-started":"plan-action"} onClick={()=>void togglePlan(p.title)}>{startedPlans.includes(p.title)?<Check size={17}/>:<Plus size={18}/>}</button></article>)}</div><p className="reader-disclaimer">Starter plan concepts are demonstrations. Full daily readings and progress syncing will be added with the content system.</p></section>}
 
-          {tab === "Prayer" && <section className="page-section"><div className="page-intro"><span className="section-kicker">A QUIET PLACE FOR THE HEART</span><h1>Come as you <em>are.</em></h1><p>There is room here for gratitude, questions, hope, and honest prayer.</p></div><div className="prayer-writing"><div className="prayer-heading"><Heart size={20}/><div><strong>Your prayer journal</strong><span>Private on this device in this demo</span></div></div><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="God, today I want to bring..." rows={5}/><div className="prayer-footer"><span>{prayer.length} characters</span><button className="solid-button" onClick={()=>{if(!prayer.trim()){notify("Write a prayer first");return;}setPrayers(prev=>[prayer.trim(),...prev]);setPrayer("");notify("Prayer saved on this page");}}><NotebookPen size={16}/> Save prayer</button></div></div><div className="section-heading"><div><span className="section-kicker">YOUR REFLECTIONS</span><h2>Held in prayer</h2></div><span className="results-count">{prayers.length} entries</span></div>{prayers.length===0?<div className="empty-state"><span><Heart size={22}/></span><strong>Your journal begins here.</strong><p>Your saved prayers will appear here while this page remains open. Sign-in and private cloud storage are future features.</p></div>:<div className="saved-list">{prayers.map((p,i)=><article key={i} className="saved-row"><span className="saved-mark"><Heart size={17}/></span><div><p>{p}</p><small>Just now · Personal prayer</small></div><button className="icon-button" aria-label="Delete prayer" onClick={()=>setPrayers(prev=>prev.filter((_,idx)=>idx!==i))}><X size={16}/></button></article>)}</div>}</section>}
+          {tab === "Prayer" && <section className="page-section"><div className="page-intro"><span className="section-kicker">A QUIET PLACE FOR THE HEART</span><h1>Come as you <em>are.</em></h1><p>There is room here for gratitude, questions, hope, and honest prayer.</p></div><div className="prayer-writing"><div className="prayer-heading"><Heart size={20}/><div><strong>Your prayer journal</strong><span>Private to your OrPath account</span></div></div><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="God, today I want to bring..." rows={5}/><div className="prayer-footer"><span>{prayer.length} characters</span><button className="solid-button" onClick={()=>void savePrayerEntry(false)}><NotebookPen size={16}/> Save prayer</button></div></div><div className="section-heading"><div><span className="section-kicker">YOUR REFLECTIONS</span><h2>Held in prayer</h2></div><span className="results-count">{prayers.length} entries</span></div>{prayers.length===0?<div className="empty-state"><span><Heart size={22}/></span><strong>Your journal begins here.</strong><p>Your private prayers will appear here after you save your first entry.</p></div>:<div className="saved-list">{prayers.map((p,i)=><article key={i} className="saved-row"><span className="saved-mark"><Heart size={17}/></span><div><p>{p}</p><small>Just now · Personal prayer</small></div><button className="icon-button" aria-label="Delete prayer" onClick={()=>setPrayers(prev=>prev.filter((_,idx)=>idx!==i))}><X size={16}/></button></article>)}</div>}</section>}
 
-          {tab === "Saved" && <section className="page-section"><div className="page-intro"><span className="section-kicker">WORDS TO RETURN TO</span><h1>Your <em>library.</em></h1><p>Keep meaningful passages close, ready for another quiet moment.</p></div><div className="section-heading"><div><span className="section-kicker">PERSONAL COLLECTION</span><h2>Saved verses</h2></div><span className="results-count">{saved.length} saved</span></div>{saved.length===0?<div className="empty-state"><span><Bookmark size={22}/></span><strong>Save a verse that speaks to you.</strong><p>Use the bookmark icon on a verse to keep it here.</p><button className="outline-button" onClick={()=>nav("Read")}>Open Bible reader <ArrowRight size={15}/></button></div>:<div className="saved-list">{saved.map(ref=><article className="saved-row" key={ref}><span className="saved-mark"><Bookmark size={17}/></span><div><strong>{ref}</strong><p>{verses.find(v=>v.ref===ref)?.text || "A verse you&apos;ve saved for later reflection."}</p><small>Saved to your library</small></div><button className="icon-button" aria-label={"Remove "+ref} onClick={()=>toggleSaved(ref)}><X size={16}/></button></article>)}</div>}<div className="library-note"><CircleHelp size={17}/><p>This first version keeps saved items in page memory. Accounts and synced personal libraries will be added with the backend.</p></div></section>}
+          {tab === "Saved" && <section className="page-section"><div className="page-intro"><span className="section-kicker">WORDS TO RETURN TO</span><h1>Your <em>library.</em></h1><p>Keep meaningful passages close, ready for another quiet moment.</p></div><div className="section-heading"><div><span className="section-kicker">PERSONAL COLLECTION</span><h2>Saved verses</h2></div><span className="results-count">{saved.length} saved</span></div>{saved.length===0?<div className="empty-state"><span><Bookmark size={22}/></span><strong>Save a verse that speaks to you.</strong><p>Use the bookmark icon on a verse to keep it here.</p><button className="outline-button" onClick={()=>nav("Read")}>Open Bible reader <ArrowRight size={15}/></button></div>:<div className="saved-list">{saved.map(ref=><article className="saved-row" key={ref}><span className="saved-mark"><Bookmark size={17}/></span><div><strong>{ref}</strong><p>{verses.find(v=>v.ref===ref)?.text || "A verse you&apos;ve saved for later reflection."}</p><small>Saved to your library</small></div><button className="icon-button" aria-label={"Remove "+ref} onClick={()=>toggleSaved(ref)}><X size={16}/></button></article>)}</div>}<div className="library-note"><CircleHelp size={17}/><p>Your saved verses sync privately to your OrPath account.</p></div></section>}
           <footer className="footer"><span>© 2026 OrPath</span><span><span className="footer-dot"/> Made for the journey.</span><a className="text-link" href="/about">About the founder <ArrowRight size={13}/></a></footer>
         </div>
       </section>
 
       {showSearch && <div className="modal-backdrop" onClick={()=>setShowSearch(false)}><section className="search-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="section-kicker">FIND YOUR PASSAGE</span><h2>Search the Word</h2></div><button className="icon-button" onClick={()=>setShowSearch(false)}><X size={18}/></button></div><div className="search-input-wrap"><Search size={18}/><input autoFocus value={search} onChange={e=>setSearch(e.target.value)} placeholder="Try “trust”, “light”, or “Psalm 119”"/><kbd>ESC</kbd></div><div className="search-results">{search ? filteredVerses.map(v=><button className="search-result" key={v.ref} onClick={()=>{setVerseIndex(verses.findIndex(x=>x.ref===v.ref));setShowSearch(false);setSearch("");nav("Home");}}><span>{v.theme}</span><strong>{v.ref}</strong><p>{v.text}</p><ArrowRight size={16}/></button>) : <div className="search-hint"><Sparkles size={19}/><p>Search a word, topic, or Bible reference to explore the sample verses.</p><div>{["trust","light","peace","courage"].map(t=><button key={t} onClick={()=>setSearch(t)}>{t}</button>)}</div></div>}{search && filteredVerses.length===0 && <div className="search-hint"><p>No sample verses matched. A full Bible search will be available when the complete text library is connected.</p></div>}</div></section></div>}
 
-      {showPrayer && <div className="modal-backdrop" onClick={()=>setShowPrayer(false)}><section className="prayer-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="section-kicker">MAKE ROOM FOR STILLNESS</span><h2>A moment of prayer</h2></div><button className="icon-button" onClick={()=>setShowPrayer(false)}><X size={18}/></button></div><p className="modal-quote">“Be still, and know that I am God.” <span>— Psalm 46:10</span></p><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="What is on your heart today?" rows={5}/><button className="solid-button full-button" onClick={()=>{if(!prayer.trim()){notify("Write a prayer first");return;}setPrayers(prev=>[prayer.trim(),...prev]);setPrayer("");setShowPrayer(false);nav("Prayer");notify("Prayer saved on this page");}}><Heart size={16}/> Keep this prayer</button><p className="modal-footnote">In this demo, prayers remain in page memory and are not uploaded.</p></section></div>}
+      {showPrayer && <div className="modal-backdrop" onClick={()=>setShowPrayer(false)}><section className="prayer-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="section-kicker">MAKE ROOM FOR STILLNESS</span><h2>A moment of prayer</h2></div><button className="icon-button" onClick={()=>setShowPrayer(false)}><X size={18}/></button></div><p className="modal-quote">“Be still, and know that I am God.” <span>— Psalm 46:10</span></p><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="What is on your heart today?" rows={5}/><button className="solid-button full-button" onClick={()=>void savePrayerEntry(true)}><Heart size={16}/> Keep this prayer</button><p className="modal-footnote">Your prayer is saved privately to your OrPath account.</p></section></div>}
       {notice && <div className="toast"><Check size={16}/>{notice}</div>}
     </main>
   );
