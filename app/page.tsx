@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
+import { createClient } from "@/lib/supabase/client";
 import {
   ArrowDown, ArrowLeft, ArrowRight, AudioLines, BookMarked, BookOpen,
   Bookmark, Check, ChevronDown, CircleHelp, Compass, Copy, Flame, Headphones,
@@ -48,8 +49,28 @@ export default function HomePage() {
   const [startedPlans, setStartedPlans] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [profileInitial, setProfileInitial] = useState("U");
+  const [profileLabel, setProfileLabel] = useState("Guest reader");
+  const [signedIn, setSignedIn] = useState(false);
   const [activeBook, setActiveBook] = useState("Genesis");
   const [activeChapter, setActiveChapter] = useState(1);
+
+  useEffect(() => {
+    let active = true;
+    async function loadProfileBadge() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!active || !user) return;
+      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      if (!active) return;
+      const displayName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
+      setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "U");
+      setProfileLabel(displayName);
+      setSignedIn(true);
+    }
+    void loadProfileBadge();
+    return () => { active = false; };
+  }, []);
 
   const currentVerse = verses[verseIndex];
   const filteredVerses = useMemo(() => verses.filter(v => (v.ref + " " + v.text).toLowerCase().includes(search.toLowerCase())), [search]);
@@ -92,7 +113,7 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
           <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>Start a rhythm</strong><p>A little time in the Word, every day.</p></div><ArrowRight size={16}/></div>
-          <button className="profile-button" onClick={() => { window.location.href = "/dashboard"; }}><div className="avatar">O</div><div><strong>Your journey</strong><span>Guest reader</span></div><MoreHorizontal size={19}/></button>
+          <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
 
@@ -103,7 +124,7 @@ export default function HomePage() {
           <div className="top-actions">
             <button className="icon-button" aria-label="Search Scripture" onClick={() => setShowSearch(true)}><Search size={18}/></button>
             <button className="icon-button" aria-label="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-            <button className="top-avatar" onClick={() => { window.location.href = "/dashboard"; }}>O</button>
+            <button className="top-avatar" aria-label={signedIn ? `Open ${profileLabel} profile` : "Sign in"} onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}>{profileInitial}</button>
           </div>
         </header>
 
