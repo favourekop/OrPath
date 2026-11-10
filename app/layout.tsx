@@ -2,9 +2,16 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://or-path.vercel.app"),
   title: "OrPath — Let the Word Lead",
   description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
   applicationName: "OrPath",
+  openGraph: {
+    title: "OrPath — Let the Word Lead",
+    description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
+    siteName: "OrPath",
+    type: "website",
+  },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "OrPath" },
 };
 
