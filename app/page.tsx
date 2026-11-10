@@ -180,11 +180,11 @@ export default function HomePage() {
     const todayStamp = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
     const yesterday = new Date(todayStamp); yesterday.setDate(yesterday.getDate() - 1);
     const cursor = dayStamps.has(todayStamp) ? new Date(todayStamp) : dayStamps.has(yesterday.getTime()) ? new Date(yesterday) : null;
-    let current = 0;
-    while (cursor && dayStamps.has(cursor.getTime())) { current++; cursor.setDate(cursor.getDate() - 1); }
+    let currentCount = 0;
+    while (cursor && dayStamps.has(cursor.getTime())) { currentCount++; cursor.setDate(cursor.getDate() - 1); }
     let best = 0, run = 0, previous: number | null = null;
     for (const stamp of [...dayStamps].sort((a,b)=>a-b)) { run = previous !== null && stamp - previous === 86400000 ? run + 1 : 1; best = Math.max(best, run); previous = stamp; }
-    setCurrentStreak(current); setBestStreak(best);
+    setCurrentStreak(currentCount); setBestStreak(best);
     notify(completing ? "Reading completed — your streak has been updated" : "Reading check-in removed");
   }
 
