@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Heart, ListChecks, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Your Dashboard — OrPath" };
@@ -10,11 +10,12 @@ export default async function UserDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const [profileResult, savedCount, prayerCount, progressCount, planCount, recentSaved, recentPrayers] = await Promise.all([
-    supabase.from("profiles").select("display_name, role").eq("id", user.id).maybeSingle(),
+  const [profileResult, savedCount, prayerCount, progressCount, planCount, recentSaved, recentPrayers, progressDays] = await Promise.all([
+    supabase.from("profiles").select("display_name, avatar_url, role").eq("id", user.id).maybeSingle(),
     supabase.from("saved_verses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("prayer_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("reading_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
     supabase.from("user_reading_plans").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("saved_verses").select("id, reference, verse_text, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("prayer_entries").select("id, title, content, is_answered, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
@@ -22,7 +23,16 @@ export default async function UserDashboard() {
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
   const profileInitial = displayName.trim().charAt(0).toUpperCase() || "U";
+  const dayKeys = [...new Set((progressDays.data ?? []).map((item) => { const d = new Date(item.completed_at); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; }))].sort((a,b) => new Date(a).getTime() - new Date(b).getTime());
+  const dateKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  const today = new Date(); const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+  let currentStreak = 0; let cursor = dayKeys.includes(dateKey(today)) ? new Date(today) : dayKeys.includes(dateKey(yesterday)) ? new Date(yesterday) : null;
+  while (cursor && dayKeys.includes(dateKey(cursor))) { currentStreak++; cursor.setDate(cursor.getDate()-1); }
+  let longestStreak = 0, run = 0, previous: Date | null = null;
+  for (const key of dayKeys) { const [y,m,day] = key.split("-").map(Number); const current = new Date(y,m,day); if (previous) { const gap = Math.round((current.getTime()-previous.getTime())/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=current; }
   const stats = [
+    { label: "Current streak", value: `${currentStreak} ${currentStreak === 1 ? "day" : "days"}`, icon: Flame },
+    { label: "Longest streak", value: `${longestStreak} ${longestStreak === 1 ? "day" : "days"}`, icon: CalendarDays },
     { label: "Saved verses", value: savedCount.count ?? 0, icon: BookMarked },
     { label: "Prayer entries", value: prayerCount.count ?? 0, icon: Heart },
     { label: "Chapters completed", value: progressCount.count ?? 0, icon: BookOpen },
@@ -34,13 +44,13 @@ export default async function UserDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><span aria-label={`Profile for ${displayName}`} title={displayName} style={{width:30,height:30,borderRadius:"50%",display:"inline-grid",placeItems:"center",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13}}>{profileInitial}</span> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><span aria-label={`Profile for ${displayName}`} title={displayName} style={{width:30,height:30,borderRadius:"50%",display:"inline-grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13}}>{profileResult.data?.avatar_url ? <img src={profileResult.data.avatar_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
             <span className="section-kicker">YOUR PERSONAL SPACE</span>
             <h1>Welcome back,<br/><em>{displayName}.</em></h1>
-            <p>Your journey with the Word, all in one place. Keep growing at your own pace.</p>
+            <p>Your journey with the Word, all in one place. Keep growing at your own pace.</p><p style={{marginTop:12,fontSize:12,color:"#5d8064",fontWeight:700}}>🔥 {currentStreak} day reading streak · {longestStreak} day personal best</p>
           </div>
           <div className="practice-grid" style={{ marginTop: 28 }}>
             {stats.map(({label,value,icon:Icon}) => <section className="practice-card" key={label} style={{minHeight:130,cursor:"default"}}><span className="practice-icon"><Icon size={19}/></span><span className="card-overline">{label}</span><strong style={{fontSize:32}}>{value}</strong></section>)}
