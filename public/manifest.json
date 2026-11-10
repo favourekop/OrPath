@@ -1,0 +1,15 @@
+{
+  "id": "/",
+  "name": "OrPath — Let the Word Lead",
+  "short_name": "OrPath",
+  "description": "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f0",
+  "theme_color": "#103c2e",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/orpath-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
