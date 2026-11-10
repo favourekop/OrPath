@@ -38,9 +38,9 @@ export default async function UserDashboard() {
     supabase.from("prayer_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("reading_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("user_reading_plans").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
     supabase.from("saved_verses").select("id, reference, verse_text, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("prayer_entries").select("id, title, content, is_answered, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
+    supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
   ]);
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
