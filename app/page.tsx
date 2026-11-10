@@ -174,6 +174,17 @@ export default function HomePage() {
     if (progressResult.error) { notify(progressResult.error.message); return; }
     setStartedPlans(prev => prev.includes(planSlug) ? prev : [...prev, planSlug]);
     setPlanProgress(prev => ({ ...prev, [planSlug]: nextDays }));
+    const { data: streakRows } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500);
+    const dayStamps = new Set((streakRows || []).map(row => { const date = new Date(row.completed_at); return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime(); }));
+    const today = new Date();
+    const todayStamp = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+    const yesterday = new Date(todayStamp); yesterday.setDate(yesterday.getDate() - 1);
+    const cursor = dayStamps.has(todayStamp) ? new Date(todayStamp) : dayStamps.has(yesterday.getTime()) ? new Date(yesterday) : null;
+    let current = 0;
+    while (cursor && dayStamps.has(cursor.getTime())) { current++; cursor.setDate(cursor.getDate() - 1); }
+    let best = 0, run = 0, previous: number | null = null;
+    for (const stamp of [...dayStamps].sort((a,b)=>a-b)) { run = previous !== null && stamp - previous === 86400000 ? run + 1 : 1; best = Math.max(best, run); previous = stamp; }
+    setCurrentStreak(current); setBestStreak(best);
     notify(completing ? "Reading completed — your streak has been updated" : "Reading check-in removed");
   }
 
