@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
 import { createClient } from "@/lib/supabase/client";
 import {
