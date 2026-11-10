@@ -3,13 +3,15 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, LoaderCircle, LogOut, Save, UserRound } from "lucide-react";
+import { ArrowLeft, BookOpen, Camera, LoaderCircle, LogOut, Save } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AccountPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const profileInitial = name.trim().charAt(0).toUpperCase() || "U";
   const [busy, setBusy] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -29,13 +31,14 @@ export default function AccountPage() {
         }
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, avatar_url")
           .eq("id", user.id)
           .maybeSingle();
         if (profileError) throw profileError;
         if (active) {
           setEmail(user.email ?? "");
           setName(profile?.display_name ?? user.user_metadata?.full_name ?? "");
+          setAvatarUrl(profile?.avatar_url ?? "");
         }
       } catch (cause) {
         if (active) setError(cause instanceof Error ? cause.message : "Your account could not be loaded.");
@@ -46,6 +49,29 @@ export default function AccountPage() {
     void loadAccount();
     return () => { active = false; };
   }, [router]);
+
+  async function uploadAvatar(file?: File) {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) { setError("Choose a JPG, PNG or WebP image."); return; }
+    if (file.size > 5 * 1024 * 1024) { setError("Your profile photo must be 5 MB or smaller."); return; }
+    setUploading(true); setError(""); setMessage("");
+    try {
+      const supabase = createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) { router.replace("/auth"); return; }
+      const extension = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+      const path = `${user.id}/avatar.${extension}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type, cacheControl: "3600" });
+      if (uploadError) throw uploadError;
+      const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const url = `${publicData.publicUrl}?v=${Date.now()}`;
+      const { error: profileError } = await supabase.from("profiles").update({ avatar_url: url, updated_at: new Date().toISOString() }).eq("id", user.id);
+      if (profileError) throw profileError;
+      setAvatarUrl(url); setMessage("Your profile photo has been updated.");
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Your photo could not be uploaded."); }
+    finally { setUploading(false); }
+  }
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,11 +118,11 @@ export default function AccountPage() {
         <Link href="/" style={{display:"inline-flex",alignItems:"center",gap:8,color:"#66806e",textDecoration:"none",fontSize:13}}><ArrowLeft size={16}/> Back to OrPath</Link>
         <section style={{marginTop:28,background:"#fff",border:"1px solid #e4e6dc",borderRadius:18,padding:"clamp(22px,5vw,36px)",boxShadow:"0 20px 60px #19382c0d"}}>
           <div style={{display:"flex",alignItems:"center",gap:13}}>
-            <span aria-label={`Profile initial ${profileInitial}`} style={{width:48,height:48,borderRadius:"50%",display:"grid",placeItems:"center",background:"#e8efe6",color:"#2c654b",fontSize:21,fontWeight:700}}>{profileInitial}</span>
+            <span aria-label={avatarUrl ? "Profile photo" : `Profile initial ${profileInitial}`} style={{width:58,height:58,borderRadius:"50%",display:"grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#2c654b",fontSize:23,fontWeight:700,flexShrink:0}}>{avatarUrl ? <img src={avatarUrl} alt="Your profile" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span>
             <div><div style={{fontSize:9,letterSpacing:2,color:"#809080"}}>YOUR ORPATH SPACE</div><h1 style={{fontFamily:"Georgia,serif",fontSize:32,fontWeight:400,margin:"5px 0 0"}}>Your account.</h1></div>
           </div>
           {busy ? <p style={{display:"flex",alignItems:"center",gap:9,color:"#718076",fontSize:13,marginTop:30}}><LoaderCircle size={17}/> Loading your account…</p> : <>
-            <form onSubmit={saveProfile} style={{display:"grid",gap:16,marginTop:30}}>
+            <div style={{marginTop:18,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}><label style={{display:"inline-flex",alignItems:"center",gap:8,padding:"10px 13px",border:"1px solid #dfe5dc",borderRadius:9,color:"#385e47",fontSize:11,fontWeight:700,cursor:"pointer"}}><Camera size={15}/>{uploading ? "Uploading photo…" : "Upload profile photo"}<input type="file" accept="image/png,image/jpeg,image/webp" disabled={uploading} onChange={e=>{void uploadAvatar(e.target.files?.[0]);e.currentTarget.value="";}} style={{display:"none"}}/></label><span style={{fontSize:10,color:"#89968b"}}>JPG, PNG or WebP · up to 5 MB</span></div><form onSubmit={saveProfile} style={{display:"grid",gap:16,marginTop:22}}>
               <label style={{display:"grid",gap:7,fontSize:12,fontWeight:600}}>Display name<input value={name} onChange={e=>setName(e.target.value)} maxLength={80} autoComplete="name" placeholder="Your name" style={field}/></label>
               <label style={{display:"grid",gap:7,fontSize:12,fontWeight:600}}>Email address<input value={email} readOnly style={{...field,background:"#f7f8f4",color:"#77847a"}}/><span style={{fontSize:10,color:"#89968b",fontWeight:400}}>Your sign-in email is managed by your authentication settings.</span></label>
               {error&&<p role="alert" style={{margin:0,color:"#a33d35",fontSize:12,lineHeight:1.6}}>{error}</p>}
