@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
+import { readingPlanContent } from "./reading-plan-content";
 import { createClient } from "@/lib/supabase/client";
 import {
   ArrowDown, ArrowLeft, ArrowRight, AudioLines, BookMarked, BookOpen,
@@ -37,7 +38,7 @@ function getStreakStage(days: number) {
 }
 
 const plans = [
-  { title: "A Quiet Heart", detail: "5 days · Finding peace in God&apos;s presence", icon: "☼", color: "sand" },
+  { title: "A Quiet Heart", detail: "5 days · Finding peace in God's presence", icon: "☼", color: "sand" },
   { title: "Wisdom for Today", detail: "7 days · Learn to walk in wisdom", icon: "✳", color: "sage" },
   { title: "The Life of Jesus", detail: "14 days · Walk through the Gospels", icon: "✧", color: "lavender" },
 ];
@@ -55,7 +56,9 @@ export default function HomePage() {
   const [showPrayer, setShowPrayer] = useState(false);
   const [prayer, setPrayer] = useState("");
   const [prayers, setPrayers] = useState<string[]>([]);
-  const [startedPlans, setStartedPlans] = useState<string[]>([]);\n  const [planProgress, setPlanProgress] = useState<Record<string, number[]>>({});
+  const [startedPlans, setStartedPlans] = useState<string[]>([]);
+  const [planProgress, setPlanProgress] = useState<Record<string, number[]>>({});
+  const [activePlanDay, setActivePlanDay] = useState<Record<string, number>>({});
   const [notice, setNotice] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [profileInitial, setProfileInitial] = useState("U");
@@ -87,7 +90,8 @@ export default function HomePage() {
       if (!active) return;
       setSaved((savedRows || []).map(row => row.reference || row.verse_id));
       setPrayers((prayerRows || []).map(row => row.content));
-      setStartedPlans((planRows || []).map(row => row.plan_slug));\n      setPlanProgress(Object.fromEntries((planRows || []).map(row => [row.plan_slug, row.completed_days || []])));
+      setStartedPlans((planRows || []).map(row => row.plan_slug));
+      setPlanProgress(Object.fromEntries((planRows || []).map(row => [row.plan_slug, row.completed_days || []])));
       const { data: progress } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(400);
       if (!active) return;
       const days = new Set((progress || []).map(item => { const dt = new Date(item.completed_at); return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime(); }));
