@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Heart, ListChecks, UserRound } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Heart, ListChecks, ShieldCheck, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Your Dashboard — OrPath" };
@@ -33,7 +33,7 @@ export default async function UserDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><Link className="text-link" href="/account"><UserRound size={15}/> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><UserRound size={15}/> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
