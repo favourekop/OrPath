@@ -52,7 +52,8 @@ export default async function UserDashboard() {
   while (cursor && dayKeys.has(cursor.getTime())) { currentStreak++; cursor.setDate(cursor.getDate()-1); }
   let longestStreak = 0, run = 0, previous: number | null = null;
   for (const stamp of [...dayKeys].sort((a,b)=>a-b)) { if (previous !== null) { const gap = Math.round((stamp-previous)/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=stamp; }
-  const milestone = streakMilestone(currentStreak);\n  const stats = [
+  const milestone = streakMilestone(currentStreak);
+  const stats = [
     { label: "Current streak", value: `${currentStreak} ${currentStreak === 1 ? "day" : "days"}`, icon: Flame },
     { label: "Longest streak", value: `${longestStreak} ${longestStreak === 1 ? "day" : "days"}`, icon: CalendarDays },
     { label: "Saved verses", value: savedCount.count ?? 0, icon: BookMarked },
