@@ -51,6 +51,8 @@ export default function HomePage() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [profileInitial, setProfileInitial] = useState("U");
   const [profileLabel, setProfileLabel] = useState("Guest reader");
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [currentStreak, setCurrentStreak] = useState(0);
   const [signedIn, setSignedIn] = useState(false);
   const [activeBook, setActiveBook] = useState("Genesis");
   const [activeChapter, setActiveChapter] = useState(1);
@@ -61,11 +63,20 @@ export default function HomePage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!active || !user) return;
-      const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle();
       if (!active) return;
       const displayName = profile?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "U");
       setProfileLabel(displayName);
+      setAvatarUrl(profile?.avatar_url || "");
+      const { data: progress } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(400);
+      if (!active) return;
+      const days = new Set((progress || []).map(item => { const dt = new Date(item.completed_at); return `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`; }));
+      const key = (dt: Date) => `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
+      const today = new Date(), yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+      let cursor = days.has(key(today)) ? new Date(today) : days.has(key(yesterday)) ? new Date(yesterday) : null; let streak = 0;
+      while (cursor && days.has(key(cursor))) { streak++; cursor.setDate(cursor.getDate()-1); }
+      setCurrentStreak(streak);
       setSignedIn(true);
     }
     void loadProfileBadge();
@@ -112,8 +123,8 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Audio Bible is on our roadmap.")}><Headphones size={18}/><span>Listen to the Bible</span><span className="soon">SOON</span></button>
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
-          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>Start a rhythm</strong><p>A little time in the Word, every day.</p></div><ArrowRight size={16}/></div>
-          <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
+          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day reading streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? "Beautiful consistency. Keep going." : "Complete a chapter to begin your streak.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
+          <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{avatarUrl ? <img src={avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
 
@@ -124,13 +135,14 @@ export default function HomePage() {
           <div className="top-actions">
             <button className="icon-button" aria-label="Search Scripture" onClick={() => setShowSearch(true)}><Search size={18}/></button>
             <button className="icon-button" aria-label="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-            <button className="top-avatar" aria-label={signedIn ? `Open ${profileLabel} profile` : "Sign in"} onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}>{profileInitial}</button>
+            <button className="top-avatar" aria-label={signedIn ? `Open ${profileLabel} profile` : "Sign in"} onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}>{avatarUrl ? <img src={avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</button>
           </div>
         </header>
 
         <div className="content">
           {tab === "Home" && <>
             <div className="welcome-row"><div><div className="eyebrow"><span className="eyebrow-dot"/> YOUR MOMENT WITH GOD</div><h1>A little closer,<br/><em>every day.</em></h1><p className="welcome-copy">Make room for the Word. Find a quiet moment, breathe, and let truth meet you where you are.</p></div><div className="date-chip"><Sun size={15}/> YOUR DAILY PAUSE</div></div>
+            <section className="path-visual-card" aria-label="OrPath daily journey illustration"><div className="path-visual-copy"><span className="section-kicker">A JOURNEY ROOTED IN THE WORD</span><h2>Grow one day<br/><em>at a time.</em></h2><p>Small moments with Scripture can shape a lifetime.</p></div><div className="path-3d-scene" aria-hidden="true"><div className="path-3d-book"><span className="book-cover">OR<br/>PATH</span><span className="book-pages"/></div><div className="path-3d-orbit orbit-a"/><div className="path-3d-orbit orbit-b"/><span className="path-3d-spark">✦</span></div></section>
             <section className="hero-verse">
               <div className="hero-texture" />
               <div className="verse-top"><span><BookOpen size={15}/> VERSE OF THE DAY</span><span className="verse-date">TODAY’S LIGHT</span></div>
