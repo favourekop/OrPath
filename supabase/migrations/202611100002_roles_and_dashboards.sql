@@ -42,3 +42,33 @@ revoke insert, update on public.profiles from authenticated;
 grant select on public.profiles to authenticated;
 grant insert (id, display_name, avatar_url) on public.profiles to authenticated;
 grant update (display_name, avatar_url, updated_at) on public.profiles to authenticated;
+
+-- Platform-wide aggregate metrics are exposed only through this admin-checked RPC.
+create or replace function public.orpath_admin_dashboard_stats()
+returns table (
+  total_users bigint,
+  total_saved_verses bigint,
+  total_prayer_entries bigint,
+  total_reading_plans bigint
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_orpath_admin() then
+    raise exception 'Not authorized';
+  end if;
+
+  return query
+    select
+      (select count(*) from public.profiles),
+      (select count(*) from public.saved_verses),
+      (select count(*) from public.prayer_entries),
+      (select count(*) from public.user_reading_plans);
+end;
+$$;
+
+revoke all on function public.orpath_admin_dashboard_stats() from public;
+grant execute on function public.orpath_admin_dashboard_stats() to authenticated;
