@@ -13,19 +13,17 @@ export default async function AdminDashboard() {
   const { data: profile, error } = await supabase.from("profiles").select("role, display_name").eq("id", user.id).maybeSingle();
   if (error || profile?.role !== "admin") redirect("/dashboard");
 
-  const [users, verses, prayers, plans, latestUsers] = await Promise.all([
-    supabase.from("profiles").select("*", { count: "exact", head: true }),
-    supabase.from("saved_verses").select("*", { count: "exact", head: true }),
-    supabase.from("prayer_entries").select("*", { count: "exact", head: true }),
-    supabase.from("user_reading_plans").select("*", { count: "exact", head: true }),
+  const [platformStats, latestUsers] = await Promise.all([
+    supabase.rpc("orpath_admin_dashboard_stats"),
     supabase.from("profiles").select("id, display_name, role, created_at").order("created_at", { ascending: false }).limit(8),
   ]);
 
+  const totals = platformStats.data?.[0];
   const metrics = [
-    {label:"Registered users",value:users.count??0,icon:Users},
-    {label:"Saved verses",value:verses.count??0,icon:BookMarked},
-    {label:"Prayer entries",value:prayers.count??0,icon:Heart},
-    {label:"Reading plans",value:plans.count??0,icon:ListChecks},
+    {label:"Registered users",value:totals?.total_users??0,icon:Users},
+    {label:"Saved verses",value:totals?.total_saved_verses??0,icon:BookMarked},
+    {label:"Prayer entries",value:totals?.total_prayer_entries??0,icon:Heart},
+    {label:"Reading plans",value:totals?.total_reading_plans??0,icon:ListChecks},
   ];
 
   return (
