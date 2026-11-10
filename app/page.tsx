@@ -91,7 +91,7 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
           <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>Start a rhythm</strong><p>A little time in the Word, every day.</p></div><ArrowRight size={16}/></div>
-          <button className="profile-button" onClick={() => { window.location.href = "/auth"; }}><div className="avatar">O</div><div><strong>Your journey</strong><span>Guest reader</span></div><MoreHorizontal size={19}/></button>
+          <button className="profile-button" onClick={() => { window.location.href = "/account"; }}><div className="avatar">O</div><div><strong>Your journey</strong><span>Guest reader</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
           <div className="top-actions">
             <button className="icon-button" aria-label="Search Scripture" onClick={() => setShowSearch(true)}><Search size={18}/></button>
             <button className="icon-button" aria-label="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-            <button className="top-avatar" onClick={() => { window.location.href = "/auth"; }}>O</button>
+            <button className="top-avatar" onClick={() => { window.location.href = "/account"; }}>O</button>
           </div>
         </header>
 
