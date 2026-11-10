@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Favour Ekop — Founder of OrPath",
-  description: "Meet Favour Ekop, founder of OrPath. Connect on LinkedIn, Instagram and Facebook, or send a work enquiry by email.",
+  description: "Meet Favour Ekop, founder of OrPath. Connect on LinkedIn, Instagram, Facebook and X, or send a work enquiry by email.",
   openGraph: {
     title: "Favour Ekop — Founder of OrPath",
     description: "Meet the founder behind OrPath and connect through his official social profiles.",
@@ -23,6 +23,7 @@ const socials = [
   { name: "LinkedIn", handle: "Favour Ekop", href: "https://www.linkedin.com/in/favour-ekop", mark: "in" },
   { name: "Instagram", handle: "@favour.ekop", href: "https://www.instagram.com/favour.ekop/", mark: "◎" },
   { name: "Facebook", handle: "Favour Ekop", href: "https://www.facebook.com/profile.php?id=61565668287681", mark: "f" },
+  { name: "X", handle: "@FavourEkop", href: "https://x.com/FavourEkop", mark: "𝕏" },
 ];
 
 export default function AboutFounderPage() {
