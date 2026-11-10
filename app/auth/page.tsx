@@ -21,7 +21,15 @@ export default function AuthPage() {
     setBusy(true); setMessage(""); setError("");
     try {
       const supabase = createClient();
-      if (mode === "reset") {\n        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {\n          redirectTo: `${window.location.origin}/auth/reset-password`,\n        });\n        if (resetError) throw resetError;\n        setMessage("If an account exists for that email, a password reset link is on its way.");\n        return;\n      }\n      if (mode === "signup") {
+      if (mode === "reset") {
+        const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        });
+        if (resetError) throw resetError;
+        setMessage("If an account exists for that email, a password reset link is on its way.");
+        return;
+      }
+      if (mode === "signup") {
         const { data, error: authError } = await supabase.auth.signUp({
           email, password, options: { data: { full_name: name.trim() } },
         });
