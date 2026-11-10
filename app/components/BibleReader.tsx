@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, LoaderCircle, Search } from "lucide-react";
-type BibleItem = { id:string; name?:string; abbreviation?:string; number?:number; copyright?:string };\ntype ChapterContent = { content?: string; copyright?: string };\ntype SearchResult = { id?: string; reference?: string; text?: string; content?: string };
+type BibleItem = { id:string; name?:string; abbreviation?:string; number?:number; copyright?:string };
+type ChapterContent = { content?: string; copyright?: string };
+type SearchResult = { id?: string; reference?: string; text?: string; content?: string };
 async function api<T>(params:Record<string,string>):Promise<T>{const response=await fetch("/api/bible?"+new URLSearchParams(params));const body=await response.json();if(!response.ok)throw new Error(body.message||"Bible request failed.");return body.data as T;}
 function textOnly(value:unknown){return typeof value==="string"?value.replace(/<\/(p|div|h[1-6]|li)>/gi,"\n").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim():"";}
 export default function BibleReader(){
