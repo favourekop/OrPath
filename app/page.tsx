@@ -27,6 +27,15 @@ const chapters = [
   { n: 7, text: "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so." },
 ];
 
+function getStreakStage(days: number) {
+  const stages = [
+    [20, "Love"], [30, "Joy"], [40, "Peace"], [50, "Patience"], [60, "Kindness"],
+    [70, "Goodness"], [80, "Faithfulness"], [90, "Gentleness"], [100, "Self-Control"],
+    [120, "Victory"], [150, "Favour"], [180, "Gallant"], [270, "Grace"], [365, "AmBlessed"],
+  ] as const;
+  return [...stages].reverse().find(([threshold]) => days >= threshold)?.[1] || "Seedling";
+}
+
 const plans = [
   { title: "A Quiet Heart", detail: "5 days · Finding peace in God&apos;s presence", icon: "☼", color: "sand" },
   { title: "Wisdom for Today", detail: "7 days · Learn to walk in wisdom", icon: "✳", color: "sage" },
@@ -46,7 +55,7 @@ export default function HomePage() {
   const [showPrayer, setShowPrayer] = useState(false);
   const [prayer, setPrayer] = useState("");
   const [prayers, setPrayers] = useState<string[]>([]);
-  const [startedPlans, setStartedPlans] = useState<string[]>([]);
+  const [startedPlans, setStartedPlans] = useState<string[]>([]);\n  const [planProgress, setPlanProgress] = useState<Record<string, number[]>>({});
   const [notice, setNotice] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
   const [profileInitial, setProfileInitial] = useState("U");
@@ -72,18 +81,18 @@ export default function HomePage() {
       const [{ data: savedRows }, { data: prayerRows }, { data: planRows }] = await Promise.all([
         supabase.from("saved_verses").select("reference, verse_id").eq("user_id", user.id),
         supabase.from("prayer_entries").select("content").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
-        supabase.from("user_reading_plans").select("plan_slug").eq("user_id", user.id),
+        supabase.from("user_reading_plans").select("plan_slug, completed_days").eq("user_id", user.id),
       ]);
       if (!active) return;
       setSaved((savedRows || []).map(row => row.reference || row.verse_id));
       setPrayers((prayerRows || []).map(row => row.content));
-      setStartedPlans((planRows || []).map(row => row.plan_slug));
+      setStartedPlans((planRows || []).map(row => row.plan_slug));\n      setPlanProgress(Object.fromEntries((planRows || []).map(row => [row.plan_slug, row.completed_days || []])));
       const { data: progress } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(400);
       if (!active) return;
       const days = new Set((progress || []).map(item => { const dt = new Date(item.completed_at); return `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`; }));
       const key = (dt: Date) => `${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`;
       const today = new Date(), yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
-      let cursor = days.has(key(today)) ? new Date(today) : days.has(key(yesterday)) ? new Date(yesterday) : null; let streak = 0;
+      const cursor = days.has(key(today)) ? new Date(today) : days.has(key(yesterday)) ? new Date(yesterday) : null; let streak = 0;
       while (cursor && days.has(key(cursor))) { streak++; cursor.setDate(cursor.getDate()-1); }
       setCurrentStreak(streak);
       setSignedIn(true);
@@ -142,6 +151,23 @@ export default function HomePage() {
       setStartedPlans(prev => [...prev, planSlug]); notify("Plan added to your journey");
     }
   }
+  async function togglePlanDay(planSlug: string, day: number) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { window.location.href = "/auth"; return; }
+    if (!startedPlans.includes(planSlug)) {
+      const { error } = await supabase.from("user_reading_plans").upsert({ user_id: user.id, plan_slug: planSlug }, { onConflict: "user_id,plan_slug" });
+      if (error) { notify(error.message); return; }
+      setStartedPlans(prev => [...prev, planSlug]);
+    }
+    const current = planProgress[planSlug] || [];
+    const nextDays = current.includes(day) ? current.filter(item => item !== day) : [...current, day].sort((a,b)=>a-b);
+    const { error } = await supabase.from("user_reading_plans").update({ completed_days: nextDays }).eq("user_id", user.id).eq("plan_slug", planSlug);
+    if (error) { notify(error.message); return; }
+    setPlanProgress(prev => ({ ...prev, [planSlug]: nextDays }));
+    notify(nextDays.includes(day) ? "Reading plan day completed" : "Reading plan progress updated");
+  }
+
   function nav(next: Tab) {
     setTab(next);
     setMobileMenu(false);
@@ -171,7 +197,7 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Audio Bible is on our roadmap.")}><Headphones size={18}/><span>Listen to the Bible</span><span className="soon">SOON</span></button>
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
-          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day reading streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? "Beautiful consistency. Keep going." : "Complete a chapter to begin your streak.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
+          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day reading streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? `${getStreakStage(currentStreak)} stage · Beautiful consistency.` : "Complete a chapter to begin your streak.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
           <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{avatarUrl ? <img src={avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
@@ -213,7 +239,7 @@ export default function HomePage() {
 
           {tab === "Read" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SCRIPTURE, AT YOUR PACE</span><h1>Open the <em>Word.</em></h1><p>Take your time. Read slowly. Let each passage find its place.</p></div><BibleReader /></section>}
 
-          {tab === "Plans" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SMALL STEPS, DEEP ROOTS</span><h1>Find your <em>rhythm.</em></h1><p>Thoughtful reading journeys for every season of your faith.</p></div><div className="plan-feature"><div><span className="section-kicker">A GENTLE PLACE TO BEGIN</span><h2>Start with stillness.</h2><p>Five days of Scripture and reflection to help you slow down, listen, and rest in God&apos;s presence.</p><button className="solid-button" onClick={()=>void togglePlan("A Quiet Heart")}>{startedPlans.includes("A Quiet Heart") ? <><Check size={16}/> Added to your plans</> : <>Begin this plan <ArrowRight size={16}/></>}</button></div><div className="plan-art"><span>✳</span><div className="plan-orbit orbit-one"/><div className="plan-orbit orbit-two"/></div></div><div className="section-heading"><div><span className="section-kicker">MADE FOR YOUR WALK</span><h2>Reading journeys</h2></div><span className="results-count">{plans.length} starter plans</span></div><div className="plans-list">{plans.map((p,i)=><article className="plan-row" key={p.title}><div className={"plan-symbol "+p.color}>{p.icon}</div><div className="plan-info"><span>0{i+1} · {p.detail.split(" · ")[0].toUpperCase()}</span><h3>{p.title}</h3><p>{p.detail.split(" · ")[1]}</p></div><button className={startedPlans.includes(p.title)?"plan-started":"plan-action"} onClick={()=>void togglePlan(p.title)}>{startedPlans.includes(p.title)?<Check size={17}/>:<Plus size={18}/>}</button></article>)}</div><p className="reader-disclaimer">Starter plan concepts are demonstrations. Full daily readings and progress syncing will be added with the content system.</p></section>}
+          {tab === "Plans" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SMALL STEPS, DEEP ROOTS</span><h1>Find your <em>rhythm.</em></h1><p>Thoughtful reading journeys for every season of your faith.</p></div><div className="plan-feature"><div><span className="section-kicker">A GENTLE PLACE TO BEGIN</span><h2>Start with stillness.</h2><p>Five days of Scripture and reflection to help you slow down, listen, and rest in God&apos;s presence.</p><button className="solid-button" onClick={()=>void togglePlan("A Quiet Heart")}>{startedPlans.includes("A Quiet Heart") ? <><Check size={16}/> Added to your plans</> : <>Begin this plan <ArrowRight size={16}/></>}</button></div><div className="plan-art"><span>✳</span><div className="plan-orbit orbit-one"/><div className="plan-orbit orbit-two"/></div></div><div className="section-heading"><div><span className="section-kicker">MADE FOR YOUR WALK</span><h2>Reading journeys</h2></div><span className="results-count">{plans.length} starter plans</span></div><div className="plans-list">{plans.map((p,i)=>{const totalDays=Number(p.detail.match(/\\d+/)?.[0]||1);const done=planProgress[p.title]||[];return <article className="plan-row" key={p.title} style={{display:"block"}}><div style={{display:"flex",alignItems:"center",gap:14}}><div className={"plan-symbol "+p.color}>{p.icon}</div><div className="plan-info" style={{flex:1}}><span>0{i+1} · {p.detail.split(" · ")[0].toUpperCase()}</span><h3>{p.title}</h3><p>{p.detail.split(" · ")[1]}</p></div><button className={startedPlans.includes(p.title)?"plan-started":"plan-action"} onClick={()=>void togglePlan(p.title)}>{startedPlans.includes(p.title)?<Check size={17}/>:<Plus size={18}/>}</button></div>{startedPlans.includes(p.title)&&<div style={{marginTop:14}}><div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"var(--subtext)",marginBottom:8}}><span>YOUR PLAN PROGRESS</span><strong>{done.length}/{totalDays} days</strong></div><div style={{height:6,borderRadius:8,background:"var(--border)",overflow:"hidden"}}><div style={{height:"100%",width:(done.length/totalDays*100)+"%",background:"#5d8064",borderRadius:8}}/></div><div style={{display:"flex",flexWrap:"wrap",gap:7,marginTop:10}}>{Array.from({length:totalDays},(_,day)=><button key={day+1} type="button" aria-label={"Mark day "+(day+1)} onClick={()=>void togglePlanDay(p.title,day+1)} style={{width:32,height:32,borderRadius:9,border:"1px solid var(--border)",background:done.includes(day+1)?"#dcebdc":"transparent",color:done.includes(day+1)?"#245238":"var(--text)",fontSize:11,fontWeight:700}}>{done.includes(day+1)?"✓":day+1}</button>)}</div>{done.length===totalDays&&<p style={{fontSize:11,color:"#477451",fontWeight:700,marginTop:10}}>Plan completed. Beautiful work!</p>}</div>}</article>})}</div><p className="reader-disclaimer">Starter plan concepts are demonstrations. Full daily readings and progress syncing will be added with the content system.</p></section>}
 
           {tab === "Prayer" && <section className="page-section"><div className="page-intro"><span className="section-kicker">A QUIET PLACE FOR THE HEART</span><h1>Come as you <em>are.</em></h1><p>There is room here for gratitude, questions, hope, and honest prayer.</p></div><div className="prayer-writing"><div className="prayer-heading"><Heart size={20}/><div><strong>Your prayer journal</strong><span>Private to your OrPath account</span></div></div><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="God, today I want to bring..." rows={5}/><div className="prayer-footer"><span>{prayer.length} characters</span><button className="solid-button" onClick={()=>void savePrayerEntry(false)}><NotebookPen size={16}/> Save prayer</button></div></div><div className="section-heading"><div><span className="section-kicker">YOUR REFLECTIONS</span><h2>Held in prayer</h2></div><span className="results-count">{prayers.length} entries</span></div>{prayers.length===0?<div className="empty-state"><span><Heart size={22}/></span><strong>Your journal begins here.</strong><p>Your private prayers will appear here after you save your first entry.</p></div>:<div className="saved-list">{prayers.map((p,i)=><article key={i} className="saved-row"><span className="saved-mark"><Heart size={17}/></span><div><p>{p}</p><small>Just now · Personal prayer</small></div><button className="icon-button" aria-label="Delete prayer" onClick={()=>setPrayers(prev=>prev.filter((_,idx)=>idx!==i))}><X size={16}/></button></article>)}</div>}</section>}
 
