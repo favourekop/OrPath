@@ -3,7 +3,7 @@ const BASE="https://rest.api.bible/v1";
 export async function GET(request:NextRequest){
  const key=process.env.API_BIBLE_KEY;if(!key)return NextResponse.json({message:"API Bible key is not configured."},{status:503});
  const q=request.nextUrl.searchParams,resource=q.get("resource"),bible=q.get("bibleId"),book=q.get("bookId"),chapter=q.get("chapterId");
- let path="",params=new URLSearchParams();
+ let path="";const params=new URLSearchParams();
  if(resource==="bibles"){path="/bibles";if(q.has("language"))params.set("language",q.get("language")!);params.set("include-full-details","true")}
  else if(resource==="books"&&bible)path=`/bibles/${encodeURIComponent(bible)}/books`;
  else if(resource==="chapters"&&bible&&book)path=`/bibles/${encodeURIComponent(bible)}/books/${encodeURIComponent(book)}/chapters`;
