@@ -60,7 +60,8 @@ export default function AccountPage() {
       const cleanName = name.trim();
       const { error: profileError } = await supabase
         .from("profiles")
-        .upsert({ id: user.id, display_name: cleanName, updated_at: new Date().toISOString() });
+        .update({ display_name: cleanName, updated_at: new Date().toISOString() })
+        .eq("id", user.id);
       if (profileError) throw profileError;
       const { error: metadataError } = await supabase.auth.updateUser({ data: { full_name: cleanName } });
       if (metadataError) throw metadataError;
