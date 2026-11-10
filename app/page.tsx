@@ -5,7 +5,7 @@ import BibleReader from "./components/BibleReader";
 import {
   ArrowDown, ArrowLeft, ArrowRight, AudioLines, BookMarked, BookOpen,
   Bookmark, Check, ChevronDown, CircleHelp, Compass, Copy, Flame, Headphones,
-  Heart, History, Home, Languages, ListChecks, Menu, Moon, MoreHorizontal,
+  Heart, History, Home, Languages, LayoutDashboard, ListChecks, Menu, Moon, MoreHorizontal,
   NotebookPen, Play, Plus, Search, Settings2, Share2, Sparkles, Sun, X
 } from "lucide-react";
 
@@ -79,6 +79,7 @@ export default function HomePage() {
           <span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span>
         </a>
         <div className="side-label">YOUR SPACE</div>
+        <button className="nav-item" onClick={() => { window.location.href = "/dashboard"; }}><LayoutDashboard size={18}/><span>Your dashboard</span></button>
         <nav className="side-nav">
           {([{label:"Home",icon:Home},{label:"Read",icon:BookOpen},{label:"Plans",icon:ListChecks},{label:"Prayer",icon:Heart},{label:"Saved",icon:Bookmark}] as const).map(item => {
             const Icon = item.icon;
