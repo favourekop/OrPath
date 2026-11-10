@@ -162,17 +162,19 @@ export default function HomePage() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { window.location.href = "/auth"; return; }
-    if (!startedPlans.includes(planSlug)) {
-      const { error } = await supabase.from("user_reading_plans").upsert({ user_id: user.id, plan_slug: planSlug }, { onConflict: "user_id,plan_slug" });
-      if (error) { notify(error.message); return; }
-      setStartedPlans(prev => [...prev, planSlug]);
-    }
     const current = planProgress[planSlug] || [];
-    const nextDays = current.includes(day) ? current.filter(item => item !== day) : [...current, day].sort((a,b)=>a-b);
-    const { error } = await supabase.from("user_reading_plans").update({ completed_days: nextDays }).eq("user_id", user.id).eq("plan_slug", planSlug);
-    if (error) { notify(error.message); return; }
+    const completing = !current.includes(day);
+    const nextDays = completing ? [...current, day].sort((a,b)=>a-b) : current.filter(item => item !== day);
+    const { error: planError } = await supabase.from("user_reading_plans").upsert({ user_id: user.id, plan_slug: planSlug, completed_days: nextDays }, { onConflict: "user_id,plan_slug" });
+    if (planError) { notify(planError.message); return; }
+    const chapterId = planSlug.toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-day-" + day;
+    const progressResult = completing
+      ? await supabase.from("reading_progress").upsert({ user_id: user.id, bible_id: "orpath-plan", book_id: planSlug, chapter_id: chapterId }, { onConflict: "user_id,bible_id,chapter_id" })
+      : await supabase.from("reading_progress").delete().eq("user_id", user.id).eq("bible_id", "orpath-plan").eq("chapter_id", chapterId);
+    if (progressResult.error) { notify(progressResult.error.message); return; }
+    setStartedPlans(prev => prev.includes(planSlug) ? prev : [...prev, planSlug]);
     setPlanProgress(prev => ({ ...prev, [planSlug]: nextDays }));
-    notify(nextDays.includes(day) ? "Reading plan day completed" : "Reading plan progress updated");
+    notify(completing ? "Reading completed — your streak has been updated" : "Reading check-in removed");
   }
 
   function nav(next: Tab) {
