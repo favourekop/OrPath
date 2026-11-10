@@ -21,6 +21,7 @@ export default async function UserDashboard() {
   ]);
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
+  const profileInitial = displayName.trim().charAt(0).toUpperCase() || "U";
   const stats = [
     { label: "Saved verses", value: savedCount.count ?? 0, icon: BookMarked },
     { label: "Prayer entries", value: prayerCount.count ?? 0, icon: Heart },
@@ -33,7 +34,7 @@ export default async function UserDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><UserRound size={15}/> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><span aria-label={`Profile for ${displayName}`} title={displayName} style={{width:30,height:30,borderRadius:"50%",display:"inline-grid",placeItems:"center",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13}}>{profileInitial}</span> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
