@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import OfflineSupport from "./components/OfflineSupport";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://or-path.vercel.app"),
   title: "OrPath — Let the Word Lead",
   description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
   applicationName: "OrPath",
+  manifest: "/manifest.json",
   openGraph: {
     title: "OrPath — Let the Word Lead",
     description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
@@ -22,5 +24,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}<OfflineSupport /></body></html>;
 }
