@@ -59,7 +59,7 @@ export default function OfflineSupport() {
       {!online && (
         <div role="status" aria-live="polite" style={{position:"fixed",zIndex:100,bottom:16,left:"50%",transform:"translateX(-50%)",width:"max-content",maxWidth:"calc(100vw - 24px)",padding:"11px 15px",borderRadius:12,background:"#173f30",color:"#fff",boxShadow:"0 8px 30px #0003",fontSize:12,fontWeight:600,display:"flex",alignItems:"center",gap:9}}>
           <span aria-hidden="true">◉</span>
-          Offline mode · Cached pages only
+          Offline mode · Saved pages and Scripture available
         </div>
       )}
       {online && installPrompt && !installed && (
