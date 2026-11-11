@@ -82,6 +82,23 @@ export default function HomePage() {
       setProfileInitial(displayName.trim().charAt(0).toUpperCase() || "U");
       setProfileLabel(displayName);
       setAvatarUrl(profile?.avatar_url || "");
+
+      // A signed-in visit is the daily check-in; Bible reading is not required.
+      // The date-based unique key makes refreshes and repeat visits idempotent.
+      const visitDate = new Date();
+      const checkinDate = [
+        visitDate.getFullYear(),
+        String(visitDate.getMonth() + 1).padStart(2, "0"),
+        String(visitDate.getDate()).padStart(2, "0"),
+      ].join("-");
+      const { error: checkinError } = await supabase.from("reading_progress").upsert({
+        user_id: user.id,
+        bible_id: "orpath-checkin",
+        book_id: "daily-checkin",
+        chapter_id: checkinDate,
+      }, { onConflict: "user_id,bible_id,chapter_id" });
+      if (checkinError) console.error("OrPath daily check-in failed:", checkinError.message);
+
       const [{ data: savedRows }, { data: prayerRows }, { data: planRows }] = await Promise.all([
         supabase.from("saved_verses").select("reference, verse_id").eq("user_id", user.id),
         supabase.from("prayer_entries").select("content").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
@@ -185,7 +202,7 @@ export default function HomePage() {
     let best = 0, run = 0, previous: number | null = null;
     for (const stamp of [...dayStamps].sort((a,b)=>a-b)) { run = previous !== null && stamp - previous === 86400000 ? run + 1 : 1; best = Math.max(best, run); previous = stamp; }
     setCurrentStreak(currentCount); setBestStreak(best);
-    notify(completing ? "Reading completed — your streak has been updated" : "Reading check-in removed");
+    notify(completing ? "Reading progress saved" : "Reading check-in removed");
   }
 
   function nav(next: Tab) {
@@ -217,7 +234,7 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Audio Bible is on our roadmap.")}><Headphones size={18}/><span>Listen to the Bible</span><span className="soon">SOON</span></button>
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
-          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day reading streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? `${getStreakStage(bestStreak)} stage · Beautiful consistency.` : "Complete a chapter to begin your streak.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
+          <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? `${getStreakStage(bestStreak)} stage · Beautiful consistency.` : "Open OrPath each day to keep your streak going.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
           <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{avatarUrl ? <img src={avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
