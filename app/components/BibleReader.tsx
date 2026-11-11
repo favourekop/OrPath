@@ -2,19 +2,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, Copy, Flame, LoaderCircle, Search, Share2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-type BibleItem = { id:string; name?:string; abbreviation?:string; number?:number; copyright?:string };
+type BibleItem = { id:string; name?:string; abbreviation?:string; abbreviationLocal?:string; number?:number; copyright?:string };
+function matchesTranslation(item:BibleItem,code:string){return [item.abbreviation,item.abbreviationLocal].some(value=>value?.toUpperCase()===code);}
 type ChapterContent = { content?: string; copyright?: string };
 type SearchResult = { id?: string; reference?: string; text?: string; content?: string };
 async function api<T>(params:Record<string,string>):Promise<T>{const response=await fetch("/api/bible?"+new URLSearchParams(params));const body=await response.json();if(!response.ok)throw new Error(body.message||"Bible request failed.");return body.data as T;}
 function textOnly(value:unknown){return typeof value==="string"?value.replace(/<\/(p|div|h[1-6]|li)>/gi,"\n").replace(/<br\s*\/?\s*>/gi,"\n").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim():"";}
 export default function BibleReader(){
  const [bibles,setBibles]=useState<BibleItem[]>([]),[bibleId,setBibleId]=useState(""),[books,setBooks]=useState<BibleItem[]>([]),[bookId,setBookId]=useState("GEN"),[chapters,setChapters]=useState<BibleItem[]>([]),[chapterId,setChapterId]=useState("GEN.1"),[content,setContent]=useState(""),[copyright,setCopyright]=useState(""),[query,setQuery]=useState(""),[results,setResults]=useState<SearchResult[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState(""),[marking,setMarking]=useState(false),[completed,setCompleted]=useState(false),[completionMessage,setCompletionMessage]=useState(""),[shareNotice,setShareNotice]=useState("");
- useEffect(()=>{let live=true;api<BibleItem[]>({resource:"bibles",language:"eng"}).then(items=>{if(!live)return;setBibles(items||[]);const preferredOrder=["KJV","NIV","NLT"];const preferred=preferredOrder.map(code=>items?.find(x=>x.abbreviation?.toUpperCase()===code)).find(Boolean)||items?.[0];if(preferred)setBibleId(preferred.id);}).catch(e=>live&&setError(e.message));return()=>{live=false}},[]);
+ useEffect(()=>{let live=true;api<BibleItem[]>({resource:"bibles",language:"eng"}).then(items=>{if(!live)return;setBibles(items||[]);const preferredOrder=["KJV","NIV","NLT"];const preferred=preferredOrder.map(code=>items?.find(x=>matchesTranslation(x,code))).find(Boolean)||items?.[0];if(preferred)setBibleId(preferred.id);}).catch(e=>live&&setError(e.message));return()=>{live=false}},[]);
  useEffect(()=>{if(!bibleId)return;let live=true;setBusy(true);setError("");api<BibleItem[]>({resource:"books",bibleId}).then(items=>{if(!live)return;setBooks(items||[]);const first=items?.find(x=>x.id==="GEN")||items?.[0];if(first){setBookId(first.id);setChapterId(first.id+".1")}}).catch(e=>live&&setError(e.message)).finally(()=>live&&setBusy(false));return()=>{live=false}},[bibleId]);
  useEffect(()=>{if(!bibleId||!bookId)return;let live=true;api<BibleItem[]>({resource:"chapters",bibleId,bookId}).then(items=>{if(!live)return;setChapters(items||[]);if(items?.length)setChapterId(items[0].id)}).catch(e=>live&&setError(e.message));return()=>{live=false}},[bibleId,bookId]);
  useEffect(()=>{if(!bibleId||!chapterId)return;let live=true;setBusy(true);setError("");api<ChapterContent>({resource:"chapter",bibleId,chapterId}).then(item=>{if(!live)return;setContent(textOnly(item?.content));setCopyright(item?.copyright||"")}).catch(e=>live&&setError(e.message)).finally(()=>live&&setBusy(false));return()=>{live=false}},[bibleId,chapterId]);
  const bible=useMemo(()=>bibles.find(x=>x.id===bibleId),[bibles,bibleId]),book=useMemo(()=>books.find(x=>x.id===bookId),[books,bookId]),index=chapters.findIndex(x=>x.id===chapterId);
- const mainTranslations=["KJV","NIV","NLT"].map(code=>bibles.find(x=>x.abbreviation?.toUpperCase()===code)).filter((x):x is BibleItem=>Boolean(x));
+ const mainTranslations=["KJV","NIV","NLT"].map(code=>bibles.find(x=>matchesTranslation(x,code))).filter((x):x is BibleItem=>Boolean(x));
  const mainTranslationIds=new Set(mainTranslations.map(x=>x.id));
  async function passageAction(text:string,reference:string,mode:"copy"|"share"){
   const payload='"'+text+'" — '+reference+"\\n\\nRead and explore more Scripture on OrPath: https://or-path.vercel.app";
