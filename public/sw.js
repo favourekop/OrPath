@@ -23,7 +23,26 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Never cache private account pages or authenticated API responses.
+  // Bible API responses are public Scripture data. Cache each exact GET URL so
+  // translations, chapter lists, chapters and searches already viewed can reopen offline.
+  if (url.pathname === "/api/bible") {
+    event.respondWith((async () => {
+      const cache = await caches.open("orpath-bible-v1");
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) await cache.put(request, response.clone());
+        return response;
+      } catch {
+        const cached = await cache.match(request);
+        return cached || new Response(JSON.stringify({
+          message: "This Scripture item has not been saved for offline use yet. Reconnect and open it once."
+        }), { status: 503, headers: { "Content-Type": "application/json" } });
+      }
+    })());
+    return;
+  }
+
+  // Never cache private account pages or other authenticated API responses.
   if (url.pathname.startsWith("/auth") || url.pathname.startsWith("/account") ||
       url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/admin") ||
       url.pathname.startsWith("/api/")) return;
