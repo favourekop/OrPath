@@ -13,7 +13,10 @@ export default function BibleReader(){
  useEffect(()=>{if(!bibleId)return;let live=true;setBusy(true);setError("");api<BibleItem[]>({resource:"books",bibleId}).then(items=>{if(!live)return;setBooks(items||[]);const first=items?.find(x=>x.id==="GEN")||items?.[0];if(first){setBookId(first.id);setChapterId(first.id+".1")}}).catch(e=>live&&setError(e.message)).finally(()=>live&&setBusy(false));return()=>{live=false}},[bibleId]);
  useEffect(()=>{if(!bibleId||!bookId)return;let live=true;api<BibleItem[]>({resource:"chapters",bibleId,bookId}).then(items=>{if(!live)return;setChapters(items||[]);if(items?.length)setChapterId(items[0].id)}).catch(e=>live&&setError(e.message));return()=>{live=false}},[bibleId,bookId]);
  useEffect(()=>{if(!bibleId||!chapterId)return;let live=true;setBusy(true);setError("");api<ChapterContent>({resource:"chapter",bibleId,chapterId}).then(item=>{if(!live)return;setContent(textOnly(item?.content));setCopyright(item?.copyright||"")}).catch(e=>live&&setError(e.message)).finally(()=>live&&setBusy(false));return()=>{live=false}},[bibleId,chapterId]);
- const bible=useMemo(()=>bibles.find(x=>x.id===bibleId),[bibles,bibleId]),book=useMemo(()=>books.find(x=>x.id===bookId),[books,bookId]),index=chapters.findIndex(x=>x.id===chapterId);\n const mainTranslations=["KJV","NIV","NLT"].map(code=>bibles.find(x=>x.abbreviation?.toUpperCase()===code)).filter((x):x is BibleItem=>Boolean(x));\n const mainTranslationIds=new Set(mainTranslations.map(x=>x.id));\n const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
+ const bible=useMemo(()=>bibles.find(x=>x.id===bibleId),[bibles,bibleId]),book=useMemo(()=>books.find(x=>x.id===bookId),[books,bookId]),index=chapters.findIndex(x=>x.id===chapterId);
+ const mainTranslations=["KJV","NIV","NLT"].map(code=>bibles.find(x=>x.abbreviation?.toUpperCase()===code)).filter((x):x is BibleItem=>Boolean(x));
+ const mainTranslationIds=new Set(mainTranslations.map(x=>x.id));
+ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
  async function markChapterComplete(){
   setMarking(true);setCompletionMessage("");
   try{const supabase=createClient();const {data:{user},error:authError}=await supabase.auth.getUser();if(authError)throw authError;if(!user){setCompletionMessage("Sign in to save your reading progress and build your streak.");return;}
