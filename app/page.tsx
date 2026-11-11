@@ -232,7 +232,7 @@ export default function HomePage() {
     <main className={dark ? "app dark" : "app"}>
       <aside className={mobileMenu ? "sidebar mobile-open" : "sidebar"}>
         <a className="brand" href="#" onClick={(e) => { e.preventDefault(); nav("Home"); }}>
-          <span className="brand-mark"><BookOpen size={22} strokeWidth={1.8}/><i /></span>
+          <span className="brand-mark"><img src="/orpath-logo.svg" alt="OrPath logo" /></span>
           <span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span>
         </a>
         <div className="side-label">YOUR SPACE</div>
