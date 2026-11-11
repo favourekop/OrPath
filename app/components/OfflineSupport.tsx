@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -8,6 +10,7 @@ type InstallPromptEvent = Event & {
 };
 
 export default function OfflineSupport() {
+  const router = useRouter();
   const [online, setOnline] = useState(true);
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
@@ -31,6 +34,32 @@ export default function OfflineSupport() {
     window.addEventListener("offline", handleOffline);
     window.addEventListener("beforeinstallprompt", handleInstall);
     window.addEventListener("appinstalled", handleInstalled);
+
+    // Every authenticated app visit counts as the daily check-in, even when
+    // the reader does not open or complete a Bible chapter.
+    void (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const now = new Date();
+        const dateKey = [
+          now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, "0"),
+          String(now.getDate()).padStart(2, "0"),
+        ].join("-");
+        const { error } = await supabase.from("reading_progress").upsert({
+          user_id: user.id,
+          bible_id: "orpath-checkin",
+          book_id: "daily-checkin",
+          chapter_id: dateKey,
+        }, { onConflict: "user_id,bible_id,chapter_id" });
+        if (error) console.error("OrPath daily check-in failed:", error.message);
+        else router.refresh();
+      } catch (error) {
+        console.error("OrPath daily check-in could not be saved:", error);
+      }
+    })();
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch((error) => {
