@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
   applicationName: "OrPath",
   manifest: "/manifest.json",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }], apple: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   openGraph: {
     title: "OrPath — Let the Word Lead",
     description: "A thoughtful home for Scripture, daily devotionals, prayer, and spiritual growth.",
