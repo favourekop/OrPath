@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import OfflineSupport from "./components/OfflineSupport";
 import { PostHogProvider } from "./providers";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://or-path.vercel.app"),
@@ -26,5 +27,24 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><PostHogProvider>{children}<OfflineSupport /></PostHogProvider></body></html>;
+  return (
+    <html lang="en">
+      <head>
+        <Script id="google-tag-manager-init" strategy="beforeInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });`}
+        </Script>
+        <Script
+          id="google-tag-manager"
+          src="https://www.googletagmanager.com/gtm.js?id=GTM-PNMKSF7X"
+          strategy="beforeInteractive"
+        />
+      </head>
+      <body>
+        <PostHogProvider>{children}<OfflineSupport /></PostHogProvider>
+      </body>
+    </html>
+  );
 }
