@@ -16,6 +16,21 @@ export default function AuthPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  async function signInWithGoogle() {
+    setBusy(true); setError(""); setMessage("");
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      });
+      if (oauthError) throw oauthError;
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Google sign-in could not be started.");
+      setBusy(false);
+    }
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setMessage(""); setError("");
@@ -59,6 +74,10 @@ export default function AuthPage() {
         </div>
         <h1 style={{fontFamily:"Georgia,serif",fontWeight:400,fontSize:34,margin:"28px 0 8px"}}>{mode==="signin"?"Welcome back.":mode==="signup"?"Begin your journey.":"Reset your password."}</h1>
         <p style={{color:"#718076",fontSize:13,lineHeight:1.7,margin:"0 0 24px"}}>{mode==="signin"?"Sign in to continue your personal walk through Scripture.":mode==="signup"?"Create an account to keep your prayers, saved verses and reading progress together.":"Enter your account email and we will send you a secure reset link."}</p>
+        {mode !== "reset" && <>
+          <button type="button" disabled={busy} onClick={signInWithGoogle} style={{width:"100%",border:"1px solid #dfe5dc",borderRadius:10,padding:13,background:"#fff",color:"#26372f",fontWeight:600,cursor:"pointer",display:"flex",justifyContent:"center",alignItems:"center",gap:10}}><span aria-hidden="true" style={{fontWeight:800,fontSize:16,color:"#4285F4"}}>G</span> Continue with Google</button>
+          <div style={{display:"flex",alignItems:"center",gap:12,color:"#9aa69c",fontSize:10}}><span style={{height:1,background:"#e6eae3",flex:1}}/><span>OR USE EMAIL</span><span style={{height:1,background:"#e6eae3",flex:1}}/></div>
+        </>}
         <form onSubmit={submit} style={{display:"grid",gap:14}}>
           {mode==="signup"&&<label style={{display:"grid",gap:7,fontSize:12,fontWeight:600}}>Your name<input required value={name} onChange={e=>setName(e.target.value)} autoComplete="name" placeholder="Your name" style={field}/></label>}
           <label style={{display:"grid",gap:7,fontSize:12,fontWeight:600}}>Email address<span style={inputWrap}><Mail size={16}/><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="you@example.com" style={innerField}/></span></label>
