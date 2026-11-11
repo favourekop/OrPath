@@ -1,4 +1,5 @@
-const CACHE_NAME = "orpath-shell-v1";
+const CACHE_NAME = "orpath-shell-v2";
+const BIBLE_CACHE_NAME = "orpath-bible-v1";
 const OFFLINE_URL = "/offline.html";
 const APP_SHELL = ["/", "/about", "/manifest.json", OFFLINE_URL, "/orpath-icon.svg"];
 
@@ -13,7 +14,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME && key !== BIBLE_CACHE_NAME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
