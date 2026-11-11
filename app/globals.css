@@ -37,3 +37,18 @@
 .founder-email-link{display:inline-flex;align-items:center;gap:9px;margin-top:15px;padding:12px 15px;border-radius:10px;background:#173f30;color:#fff;text-decoration:none;font-size:12px;font-weight:700;overflow-wrap:anywhere}
 .founder-email-link:hover{background:#23553e}
 @media(max-width:560px){.founder-profile{gap:21px}.founder-portrait-frame{width:min(100%,300px)}.founder-social-grid{grid-template-columns:1fr}.founder-social-link{min-height:62px}.founder-email-link{font-size:11px}}
+
+
+/* Final alignment pass: sidebar identity row and stacked founder profile */
+.profile-button{min-height:62px;align-items:center;gap:11px;padding:13px 7px 4px}
+.profile-button .avatar{width:38px;height:38px;min-width:38px;flex:0 0 38px;overflow:hidden;display:grid;place-items:center;border-radius:50%;line-height:1;box-sizing:border-box}
+.profile-button .avatar .sidebar-avatar-image{display:block;width:100%;height:100%;min-width:100%;min-height:100%;object-fit:cover;object-position:center;border-radius:50%;margin:0;padding:0}
+.profile-button>div:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px}
+.profile-button>div:nth-child(2) strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.35}
+.profile-button>div:nth-child(2) span{margin-top:0;line-height:1.35}
+.profile-button>svg{flex:0 0 auto;margin-left:4px}
+.founder-profile{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:start;gap:25px;text-align:center}
+.founder-portrait-frame{display:block;width:min(100%,360px);aspect-ratio:4/5;margin:0 auto;align-self:start}
+.founder-portrait-frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 25%;filter:none;transform:none}
+.founder-profile-copy{display:block;width:100%;max-width:700px;margin:0 auto}
+@media(max-width:560px){.profile-button{padding-top:12px}.founder-portrait-frame{width:min(100%,320px)}}
