@@ -10,6 +10,6 @@
   "theme_color": "#103c2e",
   "orientation": "portrait",
   "icons": [
-    { "src": "/orpath-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/orpath-logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }
