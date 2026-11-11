@@ -209,9 +209,23 @@ export default function HomePage() {
     setTab(next);
     setMobileMenu(false);
   }
-  function copyVerse(text: string, ref: string) {
-    if (navigator.clipboard) navigator.clipboard.writeText('"' + text + '" — ' + ref).then(() => notify("Verse copied")).catch(() => notify("Select and copy this verse"));
-    else notify("Select and copy this verse");
+  function verseShareText(text: string, ref: string) {
+    return '"' + text + '" — ' + ref + "\n\nRead and explore more Scripture on OrPath: https://or-path.vercel.app";
+  }
+
+  async function copyVerse(text: string, ref: string) {
+    const shareText = verseShareText(text, ref);
+    try { await navigator.clipboard.writeText(shareText); notify("Verse copied with OrPath link"); }
+    catch { notify("Copy is unavailable in this browser"); }
+  }
+
+  async function shareVerse(text: string, ref: string) {
+    const shareText = verseShareText(text, ref);
+    try {
+      if (navigator.share) await navigator.share({ title: ref + " | OrPath", text: shareText, url: "https://or-path.vercel.app" });
+      else await navigator.clipboard.writeText(shareText);
+      notify("Ready to share with OrPath link");
+    } catch (error) { if (error instanceof Error && error.name !== "AbortError") notify("Sharing is unavailable right now"); }
   }
 
   return (
@@ -259,7 +273,7 @@ export default function HomePage() {
               <div className="verse-top"><span><BookOpen size={15}/> VERSE OF THE DAY</span><span className="verse-date">TODAY’S LIGHT</span></div>
               <div className="ornament">“</div>
               <blockquote>{currentVerse.text}</blockquote>
-              <div className="verse-bottom"><span className="verse-reference">{currentVerse.ref} <span>·</span> KJV</span><div className="verse-actions"><button title="Copy verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Copy size={16}/></button><button title="Share verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Share2 size={16}/></button><button title="Save verse" className={saved.includes(currentVerse.ref) ? "saved" : ""} onClick={() => toggleSaved(currentVerse.ref)}>{saved.includes(currentVerse.ref) ? <Check size={16}/> : <Bookmark size={16}/>}</button><button title="Next verse" onClick={() => setVerseIndex((verseIndex + 1) % verses.length)}><ArrowRight size={16}/></button></div></div>
+              <div className="verse-bottom"><span className="verse-reference">{currentVerse.ref} <span>·</span> KJV</span><div className="verse-actions"><button title="Copy verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Copy size={16}/></button><button title="Share verse" onClick={() => shareVerse(currentVerse.text, currentVerse.ref)}><Share2 size={16}/></button><button title="Save verse" className={saved.includes(currentVerse.ref) ? "saved" : ""} onClick={() => toggleSaved(currentVerse.ref)}>{saved.includes(currentVerse.ref) ? <Check size={16}/> : <Bookmark size={16}/>}</button><button title="Next verse" onClick={() => setVerseIndex((verseIndex + 1) % verses.length)}><ArrowRight size={16}/></button></div></div>
               <div className="verse-progress">{verses.map((v, i) => <button key={v.ref} aria-label={"Show "+v.ref} className={i === verseIndex ? "current" : ""} onClick={() => setVerseIndex(i)}/>)}</div>
             </section>
             <div className="section-heading"><div><span className="section-kicker">A STEADY RHYTHM</span><h2>Your daily practice</h2></div><button className="text-link" onClick={() => nav("Plans")}>Explore plans <ArrowRight size={15}/></button></div>
