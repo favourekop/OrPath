@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import OfflineSupport from "./components/OfflineSupport";
+import { PostHogProvider } from "./providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://or-path.vercel.app"),
@@ -25,5 +26,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}<OfflineSupport /></body></html>;
+  return <html lang="en"><body><PostHogProvider>{children}<OfflineSupport /></PostHogProvider></body></html>;
 }
