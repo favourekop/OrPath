@@ -124,7 +124,16 @@ export default async function UserDashboard() {
               </article>)}
             </div> : <div style={{ marginTop: 16 }}>
               <p style={{ fontSize: 12, lineHeight: 1.8, color: "var(--subtext)" }}>Your next chapter starts here. Choose a guided journey and OrPath will bring you a fresh reading each day.</p>
-              {readingPlanContent.map((plan) => <article key={plan.title} style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 12, marginTop: 10 }}><strong style={{ fontSize: 13 }}>{plan.title}</strong><p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 4 }}>{plan.days.length} daily readings · {plan.days[0].reference}</p></article>)}
+              {readingPlanContent.map((plan) => {
+                const todayReading = plan.days[(dayOfYear - 1) % plan.days.length];
+                return <article key={plan.title} style={{ padding: 14, border: "1px solid var(--border)", borderRadius: 12, marginTop: 10 }}>
+                  <strong style={{ fontSize: 13 }}>{plan.title}</strong><p style={{ fontSize: 11, color: "#5d8064", fontWeight: 700, marginTop: 6 }}>TODAY · {todayReading.reference}</p>
+                  <h3 style={{ fontSize: 15, marginTop: 8 }}>{todayReading.title}</h3>
+                  <p style={{ fontSize: 12, lineHeight: 1.7, color: "var(--subtext)", marginTop: 6 }}>{todayReading.passage}</p>
+                  <p style={{ fontSize: 11, lineHeight: 1.7, color: "var(--subtext)", marginTop: 7 }}>{todayReading.reflection}</p>
+                  <p style={{ fontSize: 10, color: "var(--subtext)", marginTop: 8 }}>{plan.days.length}-day guided journey</p>
+                </article>;
+              })}
               <Link className="text-link" href="/">Explore reading journeys <ArrowLeft size={14}/></Link>
             </div>}
             <p style={{ fontSize: 10, color: "var(--subtext)", marginTop: 12 }}>Daily readings are selected from your journey’s start date. Your saved completion history remains yours.</p>
