@@ -2,8 +2,23 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { readingPlanContent } from "@/app/reading-plan-content";
 
 export const metadata = { title: "Your Dashboard — OrPath" };
+const dailyVerses = [
+{reference:"Psalm 119:105",text:"Thy word is a lamp unto my feet, and a light unto my path.",theme:"GUIDANCE"},
+{reference:"Proverbs 3:5–6",text:"Trust in the LORD with all thine heart; and lean not unto thine own understanding.",theme:"TRUST"},
+{reference:"Isaiah 41:10",text:"Fear thou not; for I am with thee: be not dismayed; for I am thy God.",theme:"COURAGE"},
+{reference:"Philippians 4:6–7",text:"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.",theme:"PEACE"},
+{reference:"Joshua 1:9",text:"Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.",theme:"COURAGE"},
+{reference:"Lamentations 3:22–23",text:"It is of the LORD'S mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.",theme:"NEW MERCIES"},
+{reference:"Romans 8:28",text:"And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",theme:"HOPE"},
+{reference:"Matthew 6:33",text:"But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.",theme:"PRIORITIES"},
+{reference:"Psalm 23:1",text:"The LORD is my shepherd; I shall not want.",theme:"PROVISION"},
+{reference:"2 Corinthians 12:9",text:"My grace is sufficient for thee: for my strength is made perfect in weakness.",theme:"GRACE"},
+{reference:"John 14:27",text:"Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you.",theme:"PEACE"},
+{reference:"1 Peter 5:7",text:"Casting all your care upon him; for he careth for you.",theme:"CARE"}
+];
 
 function streakMilestone(days: number) {
   const milestones = [
@@ -32,12 +47,13 @@ export default async function UserDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const [profileResult, savedCount, prayerCount, progressCount, planCount, recentSaved, recentPrayers, progressDays] = await Promise.all([
+  const [profileResult, savedCount, prayerCount, progressCount, planCount, activePlansResult, recentSaved, recentPrayers, progressDays] = await Promise.all([
     supabase.from("profiles").select("display_name, avatar_url, role").eq("id", user.id).maybeSingle(),
     supabase.from("saved_verses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("prayer_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("reading_progress").select("*", { count: "exact", head: true }).eq("user_id", user.id).neq("bible_id", "orpath-checkin"),
     supabase.from("user_reading_plans").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+    supabase.from("user_reading_plans").select("plan_slug, started_at, completed_days").eq("user_id", user.id).order("started_at", { ascending: false }),
     supabase.from("saved_verses").select("id, reference, verse_text, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("prayer_entries").select("id, title, content, is_answered, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
@@ -53,6 +69,17 @@ export default async function UserDashboard() {
   let longestStreak = 0, run = 0, previous: number | null = null;
   for (const stamp of [...dayKeys].sort((a,b)=>a-b)) { if (previous !== null) { const gap = Math.round((stamp-previous)/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=stamp; }
   const milestone = streakMilestone(longestStreak);
+  const dayOfYear = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(today.getFullYear(), 0, 0)) / 86400000);
+  const dailyVerse = dailyVerses[(dayOfYear - 1) % dailyVerses.length];
+  const activeJourneys = (activePlansResult.data ?? []).map((plan) => {
+    const content = readingPlanContent.find((item) => item.title === plan.plan_slug);
+    if (!content) return null;
+    const started = new Date(plan.started_at);
+    const elapsed = Math.max(0, Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(started.getFullYear(), started.getMonth(), started.getDate())) / 86400000));
+    const dayNumber = (elapsed % content.days.length) + 1;
+    const completedDays = plan.completed_days ?? [];
+    return { title: content.title, totalDays: content.days.length, dayNumber, day: content.days[dayNumber - 1], completedDays, progress: Math.min(100, Math.round(completedDays.length / content.days.length * 100)) };
+  }).filter((item): item is NonNullable<typeof item> => item !== null);
   const stats = [
     { label: "Current streak", value: `${currentStreak} ${currentStreak === 1 ? "day" : "days"}`, icon: Flame },
     { label: "Longest streak", value: `${longestStreak} ${longestStreak === 1 ? "day" : "days"}`, icon: CalendarDays },
@@ -75,6 +102,33 @@ export default async function UserDashboard() {
             <h1>Welcome back,<br/><em>{displayName}.</em></h1>
             <p>Your journey with the Word, all in one place. Keep growing at your own pace.</p><p style={{marginTop:12,fontSize:12,color:"#5d8064",fontWeight:700}}>🔥 {currentStreak} day streak · {longestStreak} day personal best</p>\n            <section className="continue-panel" style={{marginTop:18,padding:18}}><div className="panel-heading"><div><span className="section-kicker">YOUR GROWTH STAGE</span><h2>{milestone.earned.title}</h2><p style={{fontSize:11,color:"var(--subtext)",marginTop:5}}>{milestone.earned.subtitle} · {milestone.earned.verse}</p></div><span className="practice-icon"><Flame size={20}/></span></div>{milestone.next ? <p style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>{milestone.next.days-currentStreak} more {milestone.next.days-currentStreak===1?"day":"days"} to unlock <strong>{milestone.next.title}</strong> ({milestone.next.days}-day milestone).</p> : <p style={{fontSize:12,color:"var(--subtext)",marginTop:12}}>You have reached the one-year AmBlessed stage. Keep growing in the Word.</p>}</section>
           </div>
+          <section className="continue-panel" style={{ marginTop: 24, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">VERSE OF THE DAY · {dailyVerse.theme}</span><h2>A fresh word for today</h2></div><BookOpen size={21}/></div>
+            <blockquote style={{ margin: "18px 0 10px", fontSize: 19, lineHeight: 1.8, fontFamily: "Georgia,serif" }}>“{dailyVerse.text}”</blockquote>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#5d8064" }}>{dailyVerse.reference} · KJV</p>
+            <p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 8 }}>Your daily verse changes automatically with the calendar date.</p>
+          </section>
+          <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">YOUR DAILY WALK</span><h2>Reading journeys</h2></div><ListChecks size={21}/></div>
+            {activeJourneys.length ? <div style={{ display: "grid", gap: 18, marginTop: 18 }}>
+              {activeJourneys.map((journey) => <article key={journey.title} style={{ paddingBottom: 16, borderBottom: "1px solid var(--border)" }}>
+                <strong style={{ fontSize: 14 }}>{journey.title}</strong>
+                <p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 4 }}>Day {journey.dayNumber} of {journey.totalDays} · {journey.progress}% completed</p>
+                <div style={{ height: 6, borderRadius: 8, background: "var(--border)", overflow: "hidden", marginTop: 10 }}><div style={{ height: "100%", width: journey.progress + "%", background: "#5d8064", borderRadius: 8 }}/></div>
+                <h3 style={{ fontSize: 16, marginTop: 14 }}>{journey.day.title}</h3>
+                <p style={{ fontSize: 11, color: "#5d8064", fontWeight: 700, marginTop: 7 }}>{journey.day.reference}</p>
+                <blockquote style={{ margin: "8px 0", paddingLeft: 12, borderLeft: "3px solid #8aa58a", fontSize: 13, lineHeight: 1.7 }}>{journey.day.passage}</blockquote>
+                <p style={{ fontSize: 12, color: "var(--subtext)", lineHeight: 1.7 }}>{journey.day.reflection}</p>
+                <p style={{ fontSize: 11, fontWeight: 700, marginTop: 10 }}>TODAY’S PRACTICE</p><p style={{ fontSize: 12, color: "var(--subtext)", lineHeight: 1.7 }}>{journey.day.practice}</p>
+                <Link className="text-link" href="/">Continue this journey <ArrowLeft size={14}/></Link>
+              </article>)}
+            </div> : <div style={{ marginTop: 16 }}>
+              <p style={{ fontSize: 12, lineHeight: 1.8, color: "var(--subtext)" }}>Your next chapter starts here. Choose a guided journey and OrPath will bring you a fresh reading each day.</p>
+              {readingPlanContent.map((plan) => <article key={plan.title} style={{ padding: 12, border: "1px solid var(--border)", borderRadius: 12, marginTop: 10 }}><strong style={{ fontSize: 13 }}>{plan.title}</strong><p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 4 }}>{plan.days.length} daily readings · {plan.days[0].reference}</p></article>)}
+              <Link className="text-link" href="/">Explore reading journeys <ArrowLeft size={14}/></Link>
+            </div>}
+            <p style={{ fontSize: 10, color: "var(--subtext)", marginTop: 12 }}>Daily readings are selected from your journey’s start date. Your saved completion history remains yours.</p>
+          </section>
           <div className="practice-grid" style={{ marginTop: 28 }}>
             {stats.map(({label,value,icon:Icon}) => <section className="practice-card" key={label} style={{minHeight:130,cursor:"default"}}><span className="practice-icon"><Icon size={19}/></span><span className="card-overline">{label}</span><strong style={{fontSize:32}}>{value}</strong></section>)}
           </div>
