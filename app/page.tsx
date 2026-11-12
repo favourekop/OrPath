@@ -68,6 +68,7 @@ export default function HomePage() {
   const [prayers, setPrayers] = useState<string[]>([]);
   const [startedPlans, setStartedPlans] = useState<string[]>([]);
   const [planProgress, setPlanProgress] = useState<Record<string, number[]>>({});
+  const [planStartedAt, setPlanStartedAt] = useState<Record<string, string>>({});
   const [activePlanDay, setActivePlanDay] = useState<Record<string, number>>({});
   const [notice, setNotice] = useState("");
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -112,13 +113,14 @@ export default function HomePage() {
       const [{ data: savedRows }, { data: prayerRows }, { data: planRows }] = await Promise.all([
         supabase.from("saved_verses").select("reference, verse_id").eq("user_id", user.id),
         supabase.from("prayer_entries").select("content").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
-        supabase.from("user_reading_plans").select("plan_slug, completed_days").eq("user_id", user.id),
+        supabase.from("user_reading_plans").select("plan_slug, completed_days, started_at").eq("user_id", user.id),
       ]);
       if (!active) return;
       setSaved((savedRows || []).map(row => row.reference || row.verse_id));
       setPrayers((prayerRows || []).map(row => row.content));
       setStartedPlans((planRows || []).map(row => row.plan_slug));
       setPlanProgress(Object.fromEntries((planRows || []).map(row => [row.plan_slug, row.completed_days || []])));
+      setPlanStartedAt(Object.fromEntries((planRows || []).map(row => [row.plan_slug, row.started_at])));
       const { data: progress } = await supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(400);
       if (!active) return;
       const days = new Set((progress || []).map(item => { const dt = new Date(item.completed_at); return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime(); }));
@@ -319,7 +321,11 @@ export default function HomePage() {
               const devotional = readingPlanContent.find(item => item.title === p.title);
               const totalDays = devotional?.days.length || Number(p.detail.match(/\d+/)?.[0] || 1);
               const done = planProgress[p.title] || [];
-              const nextDay = Array.from({length:totalDays},(_,index)=>index+1).find(day=>!done.includes(day)) || totalDays;
+              const startedAt = planStartedAt[p.title] ? new Date(planStartedAt[p.title]) : new Date();
+              const today = new Date();
+              const elapsedDays = Math.max(0, Math.floor((Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()) - Date.UTC(startedAt.getFullYear(),startedAt.getMonth(),startedAt.getDate())) / 86400000));
+              const dailyDay = (elapsedDays % totalDays) + 1;
+              const nextDay = done.includes(dailyDay) ? (Array.from({length:totalDays},(_,index)=>index+1).find(day=>!done.includes(day)) || dailyDay) : dailyDay;
               const activeDay = Math.min(activePlanDay[p.title] || nextDay,totalDays);
               const dayContent = devotional?.days[activeDay-1];
               return <article className="plan-row" key={p.title} style={{display:"block"}}>
