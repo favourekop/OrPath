@@ -35,7 +35,7 @@ export default function BibleReader(){
  const mainTranslations=["KJV","NIV","NLT"].map(code=>bibles.find(x=>matchesTranslation(x,code))).filter((x):x is BibleItem=>Boolean(x));
  const mainTranslationIds=new Set(mainTranslations.map(x=>x.id));
  async function passageAction(text:string,reference:string,mode:"copy"|"share"){
-  const payload='"'+text+'" — '+reference+"\\n\\nRead and explore more Scripture on OrPath: https://or-path.vercel.app";
+  const payload='"'+text+'" — '+reference+"\n\nRead and explore more Scripture on OrPath: https://or-path.vercel.app";
   try{
    if(mode==="share"&&navigator.share){await navigator.share({title:reference+" | OrPath",text:payload,url:"https://or-path.vercel.app"});setShareNotice("Shared with the OrPath link.");}
    else{await navigator.clipboard.writeText(payload);setShareNotice("Copied with the OrPath link.");}
