@@ -16,6 +16,16 @@ const verses = [
   { ref: "Proverbs 3:5–6", text: "Trust in the LORD with all thine heart; and lean not unto thine own understanding.", theme: "TRUST" },
   { ref: "Isaiah 41:10", text: "Fear thou not; for I am with thee: be not dismayed; for I am thy God.", theme: "COURAGE" },
   { ref: "Philippians 4:6–7", text: "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God.", theme: "PEACE" },
+  { ref: "Joshua 1:9", text: "Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.", theme: "COURAGE" },
+  { ref: "Lamentations 3:22–23", text: "It is of the LORD'S mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.", theme: "NEW MERCIES" },
+  { ref: "Romans 8:28", text: "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.", theme: "HOPE" },
+  { ref: "Matthew 6:33", text: "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.", theme: "PRIORITIES" },
+  { ref: "Psalm 23:1", text: "The LORD is my shepherd; I shall not want.", theme: "PROVISION" },
+  { ref: "2 Corinthians 12:9", text: "My grace is sufficient for thee: for my strength is made perfect in weakness.", theme: "GRACE" },
+  { ref: "John 14:27", text: "Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you.", theme: "PEACE" },
+  { ref: "1 Peter 5:7", text: "Casting all your care upon him; for he careth for you.", theme: "CARE" },
+  { ref: "Psalm 37:5", text: "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass.", theme: "SURRENDER" },
+  { ref: "Galatians 6:9", text: "And let us not be weary in well doing: for in due season we shall reap, if we faint not.", theme: "PERSEVERANCE" },
 ];
 
 const chapters = [
@@ -123,6 +133,17 @@ export default function HomePage() {
     }
     void loadProfileBadge();
     return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    const refreshVerseOfTheDay = () => {
+      const now = new Date();
+      const dayOfYear = Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
+      setVerseIndex((dayOfYear - 1) % verses.length);
+    };
+    refreshVerseOfTheDay();
+    const interval = window.setInterval(refreshVerseOfTheDay, 60000);
+    return () => window.clearInterval(interval);
   }, []);
 
   const currentVerse = verses[verseIndex];
