@@ -1,14 +1,15 @@
 "use client";
 
+import Image from "next/image";
+
 import { useEffect, useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
 import { readingPlanContent } from "./reading-plan-content";
 import { createClient } from "@/lib/supabase/client";
 import {
-  ArrowDown, ArrowLeft, ArrowRight, AudioLines, BookMarked, BookOpen,
-  Bookmark, Check, ChevronDown, CircleHelp, Compass, Copy, Flame, Headphones,
-  Heart, History, Home, Languages, LayoutDashboard, ListChecks, Menu, Moon, MoreHorizontal,
-  NotebookPen, Play, Plus, Search, Settings2, Share2, Sparkles, Sun, X
+  ArrowRight, BookMarked, BookOpen, Bookmark, Check, CircleHelp, Compass,
+  Copy, Flame, Headphones, Heart, Home, LayoutDashboard, ListChecks, Menu,
+  Moon, MoreHorizontal, NotebookPen, Plus, Search, Share2, Sparkles, Sun, X
 } from "lucide-react";
 
 const verses = [
@@ -26,16 +27,6 @@ const verses = [
   { ref: "1 Peter 5:7", text: "Casting all your care upon him; for he careth for you.", theme: "CARE" },
   { ref: "Psalm 37:5", text: "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass.", theme: "SURRENDER" },
   { ref: "Galatians 6:9", text: "And let us not be weary in well doing: for in due season we shall reap, if we faint not.", theme: "PERSEVERANCE" },
-];
-
-const chapters = [
-  { n: 1, text: "In the beginning God created the heaven and the earth." },
-  { n: 2, text: "And the earth was without form, and void; and darkness was upon the face of the deep." },
-  { n: 3, text: "And God said, Let there be light: and there was light." },
-  { n: 4, text: "And God saw the light, that it was good: and God divided the light from the darkness." },
-  { n: 5, text: "And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day." },
-  { n: 6, text: "And God said, Let there be a firmament in the midst of the waters, and let it divide the waters from the waters." },
-  { n: 7, text: "And God made the firmament, and divided the waters which were under the firmament from the waters which were above the firmament: and it was so." },
 ];
 
 function getStreakStage(days: number) {
@@ -61,7 +52,6 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [verseIndex, setVerseIndex] = useState(0);
   const [saved, setSaved] = useState<string[]>([]);
-  const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showPrayer, setShowPrayer] = useState(false);
   const [prayer, setPrayer] = useState("");
@@ -78,8 +68,6 @@ export default function HomePage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [signedIn, setSignedIn] = useState(false);
-  const [activeBook, setActiveBook] = useState("Genesis");
-  const [activeChapter, setActiveChapter] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -255,7 +243,7 @@ export default function HomePage() {
     <main className={dark ? "app dark" : "app"}>
       <aside className={mobileMenu ? "sidebar mobile-open" : "sidebar"}>
         <a className="brand" href="#" onClick={(e) => { e.preventDefault(); nav("Home"); }}>
-          <span className="brand-mark"><img src="/orpath-logo.svg" alt="OrPath logo" /></span>
+          <span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span>
           <span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span>
         </a>
         <div className="side-label">YOUR SPACE</div>
@@ -272,7 +260,7 @@ export default function HomePage() {
         <button className="nav-item" onClick={() => notify("Study tools are coming soon.")}><Sparkles size={18}/><span>Study tools</span><span className="soon">SOON</span></button>
         <div className="sidebar-bottom">
           <div className="streak-card"><div className="streak-icon"><Flame size={19}/></div><div><strong>{signedIn ? `${currentStreak} day streak` : "Start a rhythm"}</strong><p>{signedIn ? (currentStreak ? `${getStreakStage(bestStreak)} stage · Beautiful consistency.` : "Open OrPath each day to keep your streak going.") : "A little time in the Word, every day."}</p></div><ArrowRight size={16}/></div>
-          <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{avatarUrl ? <img className="sidebar-avatar-image" src={avatarUrl} alt="" /> : profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
+          <button className="profile-button" onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}><div className="avatar">{avatarUrl ? <Image className="sidebar-avatar-image" src={avatarUrl} alt="" width={40} height={40} unoptimized /> : profileInitial}</div><div><strong>{signedIn ? profileLabel : "Your journey"}</strong><span>{signedIn ? "Your profile" : profileLabel}</span></div><MoreHorizontal size={19}/></button>
         </div>
       </aside>
 
@@ -283,7 +271,7 @@ export default function HomePage() {
           <div className="top-actions">
             <button className="icon-button" aria-label="Search Scripture" onClick={() => setShowSearch(true)}><Search size={18}/></button>
             <button className="icon-button" aria-label="Toggle theme" onClick={() => setDark(!dark)}>{dark ? <Sun size={18}/> : <Moon size={18}/>}</button>
-            <button className="top-avatar" aria-label={signedIn ? `Open ${profileLabel} profile` : "Sign in"} onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}>{avatarUrl ? <img src={avatarUrl} alt="" style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</button>
+            <button className="top-avatar" aria-label={signedIn ? `Open ${profileLabel} profile` : "Sign in"} onClick={() => { window.location.href = signedIn ? "/account" : "/auth"; }}>{avatarUrl ? <Image src={avatarUrl} alt="" width={36} height={36} unoptimized style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</button>
           </div>
         </header>
 
