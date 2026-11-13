@@ -13,7 +13,7 @@ function parseVerses(html: string): ParsedVerse[] {
  const verses: ParsedVerse[] = [];
  for (const block of blocks) {
   let number = ""; let text = "";
-  const flush = () => { if (number && text.trim()) verses.push({ number, text: text.replace(/\s+/g, " ").trim() }); };
+  const flush = () => { if (number && text.trim()) verses.push({ number, text: text.replace(/(?:\\n|\/n)/g, " ").replace(/\s+/g, " ").trim() }); };
   for (const node of Array.from(block.childNodes)) {
    if (node.nodeType === Node.ELEMENT_NODE && (node as Element).classList.contains("v")) { flush(); number = (node as HTMLElement).dataset.number || node.textContent?.trim() || ""; text = ""; }
    else { text += node.textContent || ""; }
