@@ -51,6 +51,8 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
    if(!("caches" in window)||!("serviceWorker" in navigator))throw new Error("Offline storage is not available in this browser.");
    await navigator.serviceWorker.register("/sw.js");
    await navigator.serviceWorker.ready;
+   const bibleCache=await caches.open("orpath-bible-v1");
+   await navigator.storage?.persist?.();
    const storage=await navigator.storage?.estimate?.();
    if(storage?.quota&&storage.usage!==undefined&&storage.quota-storage.usage<8*1024*1024)throw new Error("Your device is low on available storage. Free up space and try again.");
    const bookRows=await api<BibleItem[]>({resource:"books",bibleId},true);
@@ -62,7 +64,8 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
    const worker=async()=>{
     while(cursor<chapterIds.length){
      const chapterId=chapterIds[cursor++];
-     let saved=false;let lastError:unknown;
+     const chapterUrl=new URL("/api/bible?"+new URLSearchParams({resource:"chapter",bibleId,chapterId}),window.location.origin).toString();
+     let saved=Boolean(await bibleCache.match(chapterUrl));let lastError:unknown;
      for(let attempt=0;attempt<4&&!saved;attempt++){
       try{await api<ChapterContent>({resource:"chapter",bibleId,chapterId},true);saved=true;}
       catch(error){lastError=error;const status=(error as Error&{status?:number}).status;if(attempt===3||(status&&status!==429&&status<500))break;await new Promise(resolve=>window.setTimeout(resolve,700*(attempt+1)));}
