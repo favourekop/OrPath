@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
@@ -56,7 +57,7 @@ export default function AboutFounderPage() {
             <span className="section-kicker">FOUNDER & OWNER</span>
             <div className="founder-profile">
               <div className="founder-portrait-frame">
-                <img src="/founder-favour-ekop.jpg" alt="Portrait of Favour Ekop, founder of OrPath" width={1200} height={1500} loading="eager" fetchPriority="high" decoding="async"/>
+                <Image src="/founder-favour-ekop.jpg" alt="Portrait of Favour Ekop, founder of OrPath" width={1200} height={1500} priority unoptimized/>
               </div>
               <div className="founder-profile-copy">
                 <h2>Favour Ekop</h2>
