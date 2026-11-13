@@ -99,3 +99,22 @@
 
 /* Shared top navigation: the sidebar brand's bottom offset must not affect header alignment. */
 .topbar .brand{margin:0 8px 0 0;}
+
+
+/* Keep the shared mobile navigation on one clean row so links cannot wrap
+   and push the OrPath wordmark into the Android status-bar area. */
+@media(max-width:760px){
+  .topbar{height:auto;min-height:64px;box-sizing:border-box;flex-wrap:nowrap;align-items:center;gap:8px;overflow:visible}
+  .topbar .brand{flex:0 1 auto;min-width:0;gap:7px;margin:0 4px 0 0}
+  .topbar .brand-mark{width:32px;height:32px;min-width:32px}
+  .topbar .brand-name{font-size:21px;letter-spacing:-1.2px;white-space:nowrap}
+  .topbar .brand-name small{font-size:7px;letter-spacing:1.25px}
+  .topbar .top-actions{flex:0 0 auto;flex-wrap:nowrap;white-space:nowrap;gap:7px;min-width:0}
+  .topbar .top-actions .text-link{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;font-size:10px}
+}
+@media(max-width:380px){
+  .topbar{padding-left:10px;padding-right:10px;gap:5px}
+  .topbar .brand-name{font-size:19px}
+  .topbar .top-actions{gap:5px}
+  .topbar .top-actions .text-link{font-size:9px}
+}
