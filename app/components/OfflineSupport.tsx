@@ -73,7 +73,7 @@ export default function OfflineSupport() {
       window.removeEventListener("beforeinstallprompt", handleInstall);
       window.removeEventListener("appinstalled", handleInstalled);
     };
-  }, []);
+  }, [router]);
 
   async function installApp() {
     if (!installPrompt) return;
