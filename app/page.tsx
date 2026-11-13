@@ -68,6 +68,8 @@ export default function HomePage() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [signedIn, setSignedIn] = useState(false);
+  const [activeBook, setActiveBook] = useState("Genesis");
+  const [activeChapter, setActiveChapter] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -299,7 +301,7 @@ export default function HomePage() {
             </div>
           </>}
 
-          {tab === "Read" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SCRIPTURE, AT YOUR PACE</span><h1>Open the <em>Word.</em></h1><p>Take your time. Read slowly. Let each passage find its place.</p></div><BibleReader /></section>}
+          {tab === "Read" && <section className="page-section"><div className="page-intro"><span className="section-kicker">SCRIPTURE, AT YOUR PACE</span><h1>Open the <em>Word.</em></h1><p>Take your time. Read slowly. Let each passage find its place.</p></div><BibleReader initialBook={activeBook} initialChapter={activeChapter} /></section>}
 
           {tab === "Plans" && <section className="page-section">
             <div className="page-intro"><span className="section-kicker">SMALL STEPS, DEEP ROOTS</span><h1>Find your <em>rhythm.</em></h1><p>Thoughtful reading journeys for every season of your faith.</p></div>
