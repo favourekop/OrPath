@@ -6,6 +6,20 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+function friendlyAuthError(cause: unknown, context: "google" | "email") {
+  const message = cause instanceof Error ? cause.message.toLowerCase() : "";
+  if (context === "google") {
+    if (message.includes("provider") || message.includes("not enabled")) return "Google sign-in is not connected yet. Please use email for now.";
+    return "Google sign-in could not be completed. Please try again.";
+  }
+  if (message.includes("invalid login credentials")) return "The email or password is incorrect.";
+  if (message.includes("already registered") || message.includes("user already registered")) return "An account with this email already exists. Please sign in instead.";
+  if (message.includes("email not confirmed")) return "Please confirm your email address before signing in.";
+  if (message.includes("password")) return "Please check your password and try again.";
+  if (message.includes("rate limit") || message.includes("too many requests")) return "Too many attempts. Please wait a moment and try again.";
+  return "We could not complete that request. Please check your details and try again.";
+}
+
 export default function AuthPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
@@ -26,7 +40,7 @@ export default function AuthPage() {
       });
       if (oauthError) throw oauthError;
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Google sign-in could not be started.");
+      setError(friendlyAuthError(cause, "google"));
       setBusy(false);
     }
   }
@@ -58,7 +72,7 @@ export default function AuthPage() {
         router.refresh();
       }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Authentication could not be completed.");
+      setError(friendlyAuthError(cause, "email"));
     } finally {
       setBusy(false);
     }
