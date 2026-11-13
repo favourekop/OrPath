@@ -1,3 +1,4 @@
+import Image from "next/image";
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
@@ -118,7 +119,7 @@ export default function AccountPage() {
         <Link href="/" style={{display:"inline-flex",alignItems:"center",gap:8,color:"#66806e",textDecoration:"none",fontSize:13}}><ArrowLeft size={16}/> Back to OrPath</Link>
         <section style={{marginTop:28,background:"#fff",border:"1px solid #e4e6dc",borderRadius:18,padding:"clamp(22px,5vw,36px)",boxShadow:"0 20px 60px #19382c0d"}}>
           <div style={{display:"flex",alignItems:"center",gap:13}}>
-            <span aria-label={avatarUrl ? "Profile photo" : `Profile initial ${profileInitial}`} style={{width:58,height:58,borderRadius:"50%",display:"grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#2c654b",fontSize:23,fontWeight:700,flexShrink:0}}>{avatarUrl ? <img src={avatarUrl} alt="Your profile" style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span>
+            <span aria-label={avatarUrl ? "Profile photo" : `Profile initial ${profileInitial}`} style={{width:58,height:58,borderRadius:"50%",display:"grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#2c654b",fontSize:23,fontWeight:700,flexShrink:0}}>{avatarUrl ? <Image src={avatarUrl} alt="Your profile" width={58} height={58} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span>
             <div><div style={{fontSize:9,letterSpacing:2,color:"#809080"}}>YOUR ORPATH SPACE</div><h1 style={{fontFamily:"Georgia,serif",fontSize:32,fontWeight:400,margin:"5px 0 0"}}>Your account.</h1></div>
           </div>
           {busy ? <p style={{display:"flex",alignItems:"center",gap:9,color:"#718076",fontSize:13,marginTop:30}}><LoaderCircle size={17}/> Loading your account…</p> : <>
