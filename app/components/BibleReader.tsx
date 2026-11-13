@@ -44,14 +44,14 @@ export default function BibleReader(){
  
 const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
  async function downloadBibleForOffline(){
-  if(!bibleId||(downloadStatus&&downloadStatus.done<downloadStatus.total&&downloadStatus.message==="Downloading Scripture…"))return;
+  if(!bibleId||(downloadStatus&&(downloadStatus.message==="Preparing your offline Bible…"||downloadStatus.message==="Downloading Scripture…")))return;
   setDownloadStatus({done:0,total:0,message:"Preparing your offline Bible…",failed:0});
   try{
    if(!("caches" in window))throw new Error("Offline storage is not available in this browser.");
    const storage=await navigator.storage?.estimate?.();
    if(storage?.quota&&storage.usage!==undefined&&storage.quota-storage.usage<8*1024*1024)throw new Error("Your device is low on available storage. Free up space and try again.");
    const bookRows=await api<BibleItem[]>({resource:"books",bibleId});
-   const chapterGroups=await Promise.all((bookRows||[]).map(book=>api<BibleItem[]>({resource:"chapters",bibleId,bookId:book.id})));
+   const chapterGroups:BibleItem[][]=new Array((bookRows||[]).length);let bookCursor=0;const bookWorker=async()=>{while(bookCursor<(bookRows||[]).length){const index=bookCursor++;const book=bookRows[index];chapterGroups[index]=await api<BibleItem[]>({resource:"chapters",bibleId,bookId:book.id});}};await Promise.all(Array.from({length:4},()=>bookWorker()));
    const chapterIds=chapterGroups.flat().filter(chapter=>chapter.id&&/\.\d+$/.test(chapter.id)).map(chapter=>chapter.id);
    if(!chapterIds.length)throw new Error("No downloadable chapters were found for this translation.");
    setDownloadStatus({done:0,total:chapterIds.length,message:"Downloading Scripture…",failed:0});
@@ -87,7 +87,7 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
  <form className="reader-toolbar" onSubmit={search}><label style={{flex:1}}><Search size={16}/><input aria-label="Search Scripture" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a word or passage reference"/></label><button className="solid-button" type="submit" disabled={busy||!query.trim()}>Search</button></form>
  <section className="offline-bible-panel" aria-label="Offline Bible download">
   <div><strong>Take the whole Bible offline</strong><p>Save every available book and chapter in the selected translation to this device.</p></div>
-  <button className="outline-button" type="button" onClick={downloadBibleForOffline} disabled={!bibleId||Boolean(downloadStatus&&downloadStatus.done<downloadStatus.total&&downloadStatus.message==="Downloading Scripture…")}>
+  <button className="outline-button" type="button" onClick={downloadBibleForOffline} disabled={!bibleId||Boolean(downloadStatus&&(downloadStatus.message==="Preparing your offline Bible…"||downloadStatus.message==="Downloading Scripture…"))}>
    {downloadStatus&&downloadStatus.message==="Downloading Scripture…"?<LoaderCircle size={15} className="animate-spin"/>:<Download size={15}/>}
    {downloadStatus&&downloadStatus.message==="Downloading Scripture…"? "Downloading…":"Download full Bible"}
   </button>
