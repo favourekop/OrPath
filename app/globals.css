@@ -95,3 +95,7 @@
 .account-page-shell .top-actions{flex-wrap:wrap}
 @media(max-width:760px){.account-page-shell .topbar{height:64px;min-height:64px;padding:0 17px}.account-content{padding:25px 17px 38px}.account-page-shell .top-actions{gap:10px}.account-page-shell .top-actions .text-link{font-size:9px}}
 @media(max-width:380px){.account-page-shell .topbar{padding:0 11px}.account-page-shell .brand-name{font-size:22px}.account-page-shell .top-actions{gap:7px}}
+
+
+/* Shared top navigation: the sidebar brand's bottom offset must not affect header alignment. */
+.topbar .brand{margin:0 8px 0 0;}
