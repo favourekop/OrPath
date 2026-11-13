@@ -47,7 +47,9 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
   if(!bibleId||(downloadStatus&&(downloadStatus.message==="Preparing your offline Bible…"||downloadStatus.message==="Downloading Scripture…")))return;
   setDownloadStatus({done:0,total:0,message:"Preparing your offline Bible…",failed:0});
   try{
-   if(!("caches" in window))throw new Error("Offline storage is not available in this browser.");
+   if(!("caches" in window)||!("serviceWorker" in navigator))throw new Error("Offline storage is not available in this browser.");
+   await navigator.serviceWorker.register("/sw.js");
+   await navigator.serviceWorker.ready;
    const storage=await navigator.storage?.estimate?.();
    if(storage?.quota&&storage.usage!==undefined&&storage.quota-storage.usage<8*1024*1024)throw new Error("Your device is low on available storage. Free up space and try again.");
    const bookRows=await api<BibleItem[]>({resource:"books",bibleId},true);
