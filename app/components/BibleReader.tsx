@@ -23,7 +23,7 @@ function parseVerses(html: string): ParsedVerse[] {
  return verses;
 }
 type SearchResult = { id?: string; reference?: string; text?: string; content?: string };
-async function api<T>(params:Record<string,string>):Promise<T>{const response=await fetch("/api/bible?"+new URLSearchParams(params));if(response.ok&&typeof window!=="undefined"&&"caches" in window){try{const cache=await caches.open("orpath-bible-v1");await cache.put(response.url,response.clone());}catch{}}const body=await response.json();if(!response.ok){const error=new Error(body.message||"Bible request failed.") as Error&{status?:number};error.status=response.status;throw error;}return body.data as T;}
+async function api<T>(params:Record<string,string>,requireOfflineSave=false):Promise<T>{const response=await fetch("/api/bible?"+new URLSearchParams(params));if(response.ok&&typeof window!=="undefined"&&"caches" in window){try{const cache=await caches.open("orpath-bible-v1");await cache.put(response.url,response.clone());}catch(error){if(requireOfflineSave)throw new Error("Your device could not save this Scripture item. Check available storage and try again.");}}const body=await response.json();if(!response.ok){const error=new Error(body.message||"Bible request failed.") as Error&{status?:number};error.status=response.status;throw error;}return body.data as T;}
 function textOnly(value:unknown){return typeof value==="string"?value.replace(/<\/(p|div|h[1-6]|li)>/gi," ").replace(/<br\s*\/?\s*>/gi," ").replace(/(?:\\n|\/n)/g," ").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/\s+/g," ").trim():"";}
 export default function BibleReader(){
  const [bibles,setBibles]=useState<BibleItem[]>([]),[bibleId,setBibleId]=useState(""),[books,setBooks]=useState<BibleItem[]>([]),[bookId,setBookId]=useState("GEN"),[chapters,setChapters]=useState<BibleItem[]>([]),[chapterId,setChapterId]=useState("GEN.1"),[content,setContent]=useState(""),[verses,setVerses]=useState<ParsedVerse[]>([]),[copyright,setCopyright]=useState(""),[query,setQuery]=useState(""),[results,setResults]=useState<SearchResult[]>([]),[busy,setBusy]=useState(false),[error,setError]=useState(""),[marking,setMarking]=useState(false),[completed,setCompleted]=useState(false),[completionMessage,setCompletionMessage]=useState(""),[shareNotice,setShareNotice]=useState("");
@@ -50,8 +50,8 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
    if(!("caches" in window))throw new Error("Offline storage is not available in this browser.");
    const storage=await navigator.storage?.estimate?.();
    if(storage?.quota&&storage.usage!==undefined&&storage.quota-storage.usage<8*1024*1024)throw new Error("Your device is low on available storage. Free up space and try again.");
-   const bookRows=await api<BibleItem[]>({resource:"books",bibleId});
-   const chapterGroups:BibleItem[][]=new Array((bookRows||[]).length);let bookCursor=0;const bookWorker=async()=>{while(bookCursor<(bookRows||[]).length){const index=bookCursor++;const book=bookRows[index];chapterGroups[index]=await api<BibleItem[]>({resource:"chapters",bibleId,bookId:book.id});}};await Promise.all(Array.from({length:4},()=>bookWorker()));
+   const bookRows=await api<BibleItem[]>({resource:"books",bibleId},true);
+   const chapterGroups:BibleItem[][]=new Array((bookRows||[]).length);let bookCursor=0;const bookWorker=async()=>{while(bookCursor<(bookRows||[]).length){const index=bookCursor++;const book=bookRows[index];chapterGroups[index]=await api<BibleItem[]>({resource:"chapters",bibleId,bookId:book.id},true);}};await Promise.all(Array.from({length:4},()=>bookWorker()));
    const chapterIds=chapterGroups.flat().filter(chapter=>chapter.id&&/\.\d+$/.test(chapter.id)).map(chapter=>chapter.id);
    if(!chapterIds.length)throw new Error("No downloadable chapters were found for this translation.");
    setDownloadStatus({done:0,total:chapterIds.length,message:"Downloading Scripture…",failed:0});
@@ -61,7 +61,7 @@ const otherTranslations=bibles.filter(x=>!mainTranslationIds.has(x.id));
      const chapterId=chapterIds[cursor++];
      let saved=false;let lastError:unknown;
      for(let attempt=0;attempt<4&&!saved;attempt++){
-      try{await api<ChapterContent>({resource:"chapter",bibleId,chapterId});saved=true;}
+      try{await api<ChapterContent>({resource:"chapter",bibleId,chapterId},true);saved=true;}
       catch(error){lastError=error;const status=(error as Error&{status?:number}).status;if(attempt===3||(status&&status!==429&&status<500))break;await new Promise(resolve=>window.setTimeout(resolve,700*(attempt+1)));}
      }
      if(!saved)failures.push(chapterId+": "+(lastError instanceof Error?lastError.message:"Download failed"));
