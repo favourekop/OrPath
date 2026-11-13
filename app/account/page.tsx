@@ -115,10 +115,18 @@ export default function AccountPage() {
   }
 
   return (
-    <main style={{minHeight:"100vh",background:"#f5f4ee",color:"#19382c",padding:"28px 18px"}}>
-      <div style={{width:"100%",maxWidth:720,margin:"0 auto"}}>
-        <Link href="/" style={{display:"inline-flex",alignItems:"center",gap:8,color:"#66806e",textDecoration:"none",fontSize:13}}><ArrowLeft size={16}/> Back to OrPath</Link>
-        <section style={{marginTop:28,background:"#fff",border:"1px solid #e4e6dc",borderRadius:18,padding:"clamp(22px,5vw,36px)",boxShadow:"0 20px 60px #19382c0d"}}>
+    <main className="app account-page-shell" style={{ minHeight: "100vh" }}>
+      <section className="main-shell">
+        <header className="topbar">
+          <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
+          <div className="top-actions">
+            <Link className="text-link" href="/dashboard">Dashboard <ArrowLeft size={14}/></Link>
+            <Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link>
+          </div>
+        </header>
+        <div className="account-content">
+        <div style={{width:"100%",maxWidth:720,margin:"0 auto"}}>
+        <section className="account-card">
           <div style={{display:"flex",alignItems:"center",gap:13}}>
             <span aria-label={avatarUrl ? "Profile photo" : `Profile initial ${profileInitial}`} style={{width:58,height:58,borderRadius:"50%",display:"grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#2c654b",fontSize:23,fontWeight:700,flexShrink:0}}>{avatarUrl ? <Image src={avatarUrl} alt="Your profile" width={58} height={58} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span>
             <div><div style={{fontSize:9,letterSpacing:2,color:"#809080"}}>YOUR ORPATH SPACE</div><h1 style={{fontFamily:"Georgia,serif",fontSize:32,fontWeight:400,margin:"5px 0 0"}}>Your account.</h1></div>
@@ -138,7 +146,9 @@ export default function AccountPage() {
           </>}
         </section>
         <p style={{display:"flex",alignItems:"center",justifyContent:"center",gap:7,fontSize:10,color:"#8a968b",marginTop:18}}><BookOpen size={13}/> Let the Word lead.</p>
-      </div>
+        </div>
+        </div>
+      </section>
     </main>
   );
 }
