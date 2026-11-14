@@ -221,3 +221,70 @@
   .topbar>.brand .brand-name{font-size:18px}
   .topbar>.top-actions{gap:5px}
 }
+
+
+/* OrPath navbar alignment: lock the logo mark and wordmark to the same
+   vertical centre as every navigation control across all page headers. */
+.topbar > .brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: center !important;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 1;
+}
+.topbar > .brand > .brand-mark {
+  display: grid !important;
+  place-items: center !important;
+  box-sizing: border-box;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  flex: 0 0 36px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: center !important;
+  overflow: hidden;
+}
+.topbar > .brand > .brand-mark > img {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.topbar > .brand > .brand-name {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.1 !important;
+}
+.topbar > .brand > .brand-name > small {
+  display: block;
+  margin: 4px 0 0 !important;
+  line-height: 1.2 !important;
+}
+.topbar > .top-actions {
+  align-items: center !important;
+  align-self: center !important;
+}
+.topbar > .top-actions > * {
+  align-self: center;
+}
+@media (max-width: 760px) {
+  .topbar > .brand { height: 42px; min-height: 42px; }
+  .topbar > .brand > .brand-mark {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    flex-basis: 32px !important;
+  }
+}
