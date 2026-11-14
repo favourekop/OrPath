@@ -94,7 +94,7 @@ export default async function UserDashboard() {
     <main className="app" style={{ minHeight: "100vh" }}>
       <section className="main-shell">
         <header className="topbar">
-          <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-icon.svg" alt="" width={40} height={40} priority /></span><span className="brand-name">ORPATH<small>LET THE WORD LEAD</small></span></Link>
+          <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
           <div className="top-actions">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/account"><span aria-label={`Profile for ${displayName}`} title={displayName} style={{width:30,height:30,borderRadius:"50%",display:"inline-grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13}}>{profileResult.data?.avatar_url ? <Image src={profileResult.data.avatar_url} alt="" width={30} height={30} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</span> Account</Link><Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
