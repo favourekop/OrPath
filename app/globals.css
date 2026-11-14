@@ -290,13 +290,12 @@
 }
 
 
-/* Optical correction: the OrPath brand sits slightly above the compact
-   navbar controls on narrow headers; lower the complete logo group. */
-.topbar > .brand {
-  position: relative !important;
-  top: 5px !important;
-  transform: none !important;
-}
+/* Mobile-only optical correction: lower the complete OrPath logo group
+   to align with the compact navbar controls. Desktop remains unchanged. */
 @media (max-width: 760px) {
-  .topbar > .brand { top: 4px !important; }
+  .topbar > .brand {
+    position: relative !important;
+    top: 4px !important;
+    transform: none !important;
+  }
 }
