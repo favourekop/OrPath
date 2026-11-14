@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks } from "lucide-react";
@@ -30,7 +31,7 @@ export default async function AdminDashboard() {
     <main className="app" style={{minHeight:"100vh"}}>
       <section className="main-shell">
         <header className="topbar">
-          <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
+          <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
           <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
