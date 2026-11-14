@@ -1,9 +1,10 @@
+import Image from "next/image";
 "use client";
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 function friendlyAuthError(cause: unknown, context: "google" | "email") {
@@ -83,7 +84,7 @@ export default function AuthPage() {
       <section style={{width:"100%",maxWidth:430,background:"#fff",border:"1px solid #e4e6dc",borderRadius:20,padding:30,boxShadow:"0 20px 60px #19382c12"}}>
         <Link href="/" style={{display:"inline-flex",alignItems:"center",gap:8,color:"#66806e",textDecoration:"none",fontSize:13}}><ArrowLeft size={16}/> Back to OrPath</Link>
         <div style={{display:"flex",alignItems:"center",gap:12,marginTop:30}}>
-          <span style={{width:44,height:44,borderRadius:14,display:"grid",placeItems:"center",background:"#e8efe6",color:"#2c654b"}}><BookOpen size={23}/></span>
+          <span style={{width:44,height:44,borderRadius:14,display:"block",overflow:"hidden",flexShrink:0}}><Image src="/orpath-logo.svg" alt="OrPath logo" width={44} height={44} unoptimized /></span>
           <div><strong style={{fontSize:23,letterSpacing:-1}}>orpath<span style={{color:"#b59a62"}}>.</span></strong><div style={{fontSize:9,letterSpacing:2,color:"#809080"}}>LET THE WORD LEAD</div></div>
         </div>
         <h1 style={{fontFamily:"Georgia,serif",fontWeight:400,fontSize:34,margin:"28px 0 8px"}}>{mode==="signin"?"Welcome back.":mode==="signup"?"Begin your journey.":"Reset your password."}</h1>
