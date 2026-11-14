@@ -118,7 +118,7 @@ export default function AccountPage() {
     <main className="app account-page-shell" style={{ minHeight: "100vh" }}>
       <section className="main-shell">
         <header className="topbar">
-          <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-icon.svg" alt="" width={40} height={40} priority /></span><span className="brand-name">ORPATH<small>LET THE WORD LEAD</small></span></Link>
+          <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={21}/></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
           <div className="top-actions">
             <Link className="text-link" href="/dashboard">Dashboard <ArrowLeft size={14}/></Link>
             <Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link>
