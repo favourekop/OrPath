@@ -288,3 +288,15 @@
     flex-basis: 32px !important;
   }
 }
+
+
+/* Optical correction: the OrPath brand sits slightly above the compact
+   navbar controls on narrow headers; lower the complete logo group. */
+.topbar > .brand {
+  position: relative !important;
+  top: 5px !important;
+  transform: none !important;
+}
+@media (max-width: 760px) {
+  .topbar > .brand { top: 4px !important; }
+}
