@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BookOpen } from "lucide-react";
 
 export const metadata = {
   title: "Favour Ekop — Founder of OrPath",
