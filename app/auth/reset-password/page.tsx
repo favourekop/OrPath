@@ -1,9 +1,10 @@
+import Image from "next/image";
 "use client";
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, LoaderCircle, LockKeyhole } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LockKeyhole } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
@@ -52,7 +53,7 @@ export default function ResetPasswordPage() {
           <ArrowLeft size={16} /> Back to sign in
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 30 }}>
-          <span style={{ width: 44, height: 44, borderRadius: 14, display: "grid", placeItems: "center", background: "#e8efe6", color: "#2c654b" }}><BookOpen size={23} /></span>
+          <span style={{ width: 44, height: 44, borderRadius: 14, display: "block", overflow: "hidden", flexShrink: 0 }}><Image src="/orpath-logo.svg" alt="OrPath logo" width={44} height={44} unoptimized /></span>
           <strong style={{ fontSize: 23, letterSpacing: -1 }}>orpath<span style={{ color: "#b59a62" }}>.</span></strong>
         </div>
         <h1 style={{ fontFamily: "Georgia,serif", fontWeight: 400, fontSize: 34, margin: "28px 0 8px" }}>Choose a new password.</h1>
