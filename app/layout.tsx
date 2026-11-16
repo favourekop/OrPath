@@ -3,6 +3,7 @@ import "./globals.css";
 import OfflineSupport from "./components/OfflineSupport";
 import { PostHogProvider } from "./providers";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://or-path.vercel.app"),
@@ -43,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body>
-        <PostHogProvider>{children}<OfflineSupport /></PostHogProvider>
+        <PostHogProvider>{children}<OfflineSupport /><Analytics /></PostHogProvider>
       </body>
     </html>
   );
