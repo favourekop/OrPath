@@ -41,7 +41,7 @@ export default function AboutFounderPage() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/">
-            <span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span>
+            <span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span>
           </Link>
           <Link className="text-link" href="/">← Back to OrPath</Link>
         </header>
