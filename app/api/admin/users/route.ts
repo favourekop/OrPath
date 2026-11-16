@@ -21,7 +21,10 @@ export async function GET() {
   if ("error" in auth) return auth.error;
   const { data, error } = await auth.service.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  const admins = (data.users ?? []).filter(u => u.app_metadata?.role === "admin" || u.user_metadata?.role === "admin");
+  const { data: profiles, error: profileError } = await auth.service.from("profiles").select("id").eq("role", "admin");
+  if (profileError) return NextResponse.json({ error: profileError.message }, { status: 400 });
+  const adminIds = new Set((profiles ?? []).map(p => p.id));
+  const admins = (data.users ?? []).filter(u => adminIds.has(u.id));
   return NextResponse.json({ admins: admins.map(u => ({ id: u.id, email: u.email, created_at: u.created_at, last_sign_in_at: u.last_sign_in_at, banned_until: u.banned_until ?? null, confirmed: Boolean(u.email_confirmed_at) })) });
 }
 
