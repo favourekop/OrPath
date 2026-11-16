@@ -299,3 +299,18 @@
     transform: none !important;
   }
 }
+
+
+/* Mobile wordmark: keep the gold dot inline with “orpath”, never as a separate flex row. */
+@media (max-width: 760px) {
+  .topbar > .brand > .brand-name {
+    display: block !important;
+    flex-direction: initial !important;
+    line-height: 1.1 !important;
+  }
+  .topbar > .brand > .brand-name > span {
+    display: inline !important;
+    color: #b9995d;
+    vertical-align: baseline;
+  }
+}
