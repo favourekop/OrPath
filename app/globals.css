@@ -314,3 +314,20 @@
     vertical-align: baseline;
   }
 }
+
+
+/* Keep the brand word and gold terminal dot inseparable on mobile. */
+.topbar .brand-name .brand-word {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+.topbar .brand-name .brand-word > span {
+  display: inline !important;
+  white-space: nowrap !important;
+  color: #b9995d !important;
+}
+@media (max-width: 760px) {
+  .topbar .brand-name { min-width: max-content !important; }
+  .topbar .brand-name .brand-word { white-space: nowrap !important; }
+}
