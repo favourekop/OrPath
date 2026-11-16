@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks } from "lucide-react";
+import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Admin Dashboard — OrPath" };
@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/admin/settings">Admin settings <ShieldCheck size={14}/></Link><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/admin/analytics">Analytics <Activity size={14}/></Link><Link className="text-link" href="/admin/settings">Admin settings <ShieldCheck size={14}/></Link><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
