@@ -246,7 +246,7 @@ export default function HomePage() {
       <aside className={mobileMenu ? "sidebar mobile-open" : "sidebar"}>
         <a className="brand" href="#" onClick={(e) => { e.preventDefault(); nav("Home"); }}>
           <span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span>
-          <span className="brand-name">orpath<span>.</span><small>LET THE WORD LEAD</small></span>
+          <span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span>
         </a>
         <div className="side-label">YOUR SPACE</div>
         <button className="nav-item" onClick={() => { window.location.href = "/dashboard"; }}><LayoutDashboard size={18}/><span>Your dashboard</span></button>
