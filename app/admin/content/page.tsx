@@ -1,7 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
 import Link from "next/link";
-import {ArrowLeft,FilePlus2,RefreshCw,Trash2,Send,Save,Search,CalendarClock,Eye,Archive,PenLine,Filter} from "lucide-react";
+import {ArrowLeft,FilePlus2,RefreshCw,Trash2,Send,Save,Search,CalendarClock,Archive,PenLine,Filter} from "lucide-react";
 
 type Item={id:string;content_type:string;title:string;body:string;scripture_reference:string|null;status:string;publish_at:string|null;created_at:string;updated_at:string};
 const types=[["daily_verse","Daily verse"],["devotional","Devotional"],["featured_scripture","Featured Scripture"],["reading_journey","Reading journey"],["announcement","Announcement"]];
