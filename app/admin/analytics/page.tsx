@@ -37,8 +37,11 @@ export default async function AdminAnalyticsPage() {
       {statsError && <p role="status" style={{ color: "#9a642c", fontSize: 12, marginTop: 14 }}>Some engagement totals are unavailable until the admin statistics migration is fully applied.</p>}
       <section className="continue-panel" style={{ marginTop: 22 }}>
         <div className="panel-heading"><div><span className="section-kicker">TRAFFIC & PERFORMANCE</span><h2>Website analytics</h2></div><Activity size={20}/></div>
-        <p style={{ color: "var(--subtext)", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>Vercel Web Analytics is installed in the OrPath app. Its visitor, page-view, referrer and device reports are available in the Vercel project Analytics dashboard. This page does not invent traffic figures or expose private visitor identities.</p>
-        <a className="solid-button" href="https://vercel.com/favourekop75-1115/or-path/analytics" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none", marginTop: 12 }}>Open Vercel Analytics <ExternalLink size={15}/></a>
+        <p style={{ color: "var(--subtext)", fontSize: 12, lineHeight: 1.8, marginTop: 12 }}>Vercel Web Analytics reports page views, visitors, referrers and device categories. Vercel Speed Insights reports real-user Core Web Vitals and route performance. Both dashboards use their own collected data; metrics are not fabricated or inferred here.</p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+          <a className="solid-button" href="https://vercel.com/favourekop75-1115/or-path/analytics" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>Open Web Analytics <ExternalLink size={15}/></a>
+          <a className="outline-button" href="https://vercel.com/favourekop75-1115/or-path/speed-insights" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, textDecoration: "none" }}>Open Speed Insights <ExternalLink size={15}/></a>
+        </div>
       </section>
       <section className="continue-panel" style={{ marginTop: 18 }}>
         <div className="panel-heading"><div><span className="section-kicker">COMMUNITY GROWTH</span><h2>Recent registrations</h2></div><Users size={20}/></div>
