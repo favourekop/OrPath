@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity, FilePlus2 } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity, FilePlus2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Admin Dashboard — OrPath" };
