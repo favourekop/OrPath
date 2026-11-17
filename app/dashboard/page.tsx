@@ -62,20 +62,36 @@ export default async function UserDashboard() {
   ]);
 
   let managedDailyVerse: { reference: string; text: string; theme: string } | null = null;
+  let managedJourneys: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
+  let announcements: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && serviceRoleKey) {
     const adminDb = createSupabaseClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
-    const { data } = await adminDb.from("orpath_content")
-      .select("title, body, scripture_reference, publish_at")
-      .eq("content_type", "daily_verse")
-      .eq("status", "published")
-      .or("publish_at.is.null,publish_at.lte." + new Date().toISOString())
-      .order("publish_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (data?.body?.trim()) managedDailyVerse = { reference: data.scripture_reference || data.title, text: data.body, theme: "FROM ORPATH" };
+    const now = new Date().toISOString();
+    const [verseResult, editorialResult] = await Promise.all([
+      adminDb.from("orpath_content")
+        .select("title, body, scripture_reference, publish_at")
+        .eq("content_type", "daily_verse")
+        .eq("status", "published")
+        .or("publish_at.is.null,publish_at.lte." + now)
+        .order("publish_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      adminDb.from("orpath_content")
+        .select("id, content_type, title, body, scripture_reference, publish_at, created_at")
+        .in("content_type", ["reading_journey", "announcement"])
+        .eq("status", "published")
+        .or("publish_at.is.null,publish_at.lte." + now)
+        .order("publish_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(12),
+    ]);
+    if (verseResult.data?.body?.trim()) managedDailyVerse = { reference: verseResult.data.scripture_reference || verseResult.data.title, text: verseResult.data.body, theme: "FROM ORPATH" };
+    const editorial = editorialResult.data ?? [];
+    managedJourneys = editorial.filter(item => item.content_type === "reading_journey").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
+    announcements = editorial.filter(item => item.content_type === "announcement").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
   }
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
@@ -128,6 +144,26 @@ export default async function UserDashboard() {
             <p style={{ fontSize: 12, fontWeight: 700, color: "#5d8064" }}>{dailyVerse.reference} · KJV</p>
             <p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 8 }}>Your daily verse changes automatically with the calendar date.</p>
           </section>
+          {announcements.length > 0 && <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">ORPATH UPDATES</span><h2>Announcements</h2></div><CalendarDays size={21}/></div>
+            <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+              {announcements.map(item => <article key={item.id} style={{ paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
+                <strong style={{ fontSize: 14 }}>{item.title}</strong>
+                {item.reference && <p style={{ fontSize: 10, color: "#5d8064", fontWeight: 700, marginTop: 5 }}>{item.reference}</p>}
+                <p style={{ fontSize: 12, color: "var(--subtext)", lineHeight: 1.75, marginTop: 7, whiteSpace: "pre-wrap" }}>{item.body}</p>
+              </article>)}
+            </div>
+          </section>}
+          {managedJourneys.length > 0 && <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">CURATED BY ORPATH</span><h2>Featured reading journeys</h2></div><ListChecks size={21}/></div>
+            <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+              {managedJourneys.map(item => <article key={item.id} style={{ padding: 14, border: "1px solid var(--border)", borderRadius: 12 }}>
+                <strong style={{ fontSize: 14 }}>{item.title}</strong>
+                {item.reference && <p style={{ fontSize: 10, color: "#5d8064", fontWeight: 700, marginTop: 5 }}>{item.reference}</p>}
+                <p style={{ fontSize: 12, color: "var(--subtext)", lineHeight: 1.75, marginTop: 7, whiteSpace: "pre-wrap" }}>{item.body}</p>
+              </article>)}
+            </div>
+          </section>}
           <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
             <div className="panel-heading"><div><span className="section-kicker">YOUR DAILY WALK</span><h2>Reading journeys</h2></div><ListChecks size={21}/></div>
             {activeJourneys.length ? <div style={{ display: "grid", gap: 18, marginTop: 18 }}>
