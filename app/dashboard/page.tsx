@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { readingPlanContent } from "@/app/reading-plan-content";
 
 export const metadata = { title: "Your Dashboard — OrPath" };
@@ -60,6 +61,23 @@ export default async function UserDashboard() {
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
   ]);
 
+  let managedDailyVerse: { reference: string; text: string } | null = null;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && serviceRoleKey) {
+    const adminDb = createSupabaseClient(supabaseUrl, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
+    const { data } = await adminDb.from("orpath_content")
+      .select("title, body, scripture_reference, publish_at")
+      .eq("content_type", "daily_verse")
+      .eq("status", "published")
+      .or("publish_at.is.null,publish_at.lte." + new Date().toISOString())
+      .order("publish_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data?.body?.trim()) managedDailyVerse = { reference: data.scripture_reference || data.title, text: data.body };
+  }
+
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
   const profileInitial = displayName.trim().charAt(0).toUpperCase() || "U";
   const dayKeys = new Set((progressDays.data ?? []).map((item) => { const d = new Date(item.completed_at); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }));
@@ -71,7 +89,7 @@ export default async function UserDashboard() {
   for (const stamp of [...dayKeys].sort((a,b)=>a-b)) { if (previous !== null) { const gap = Math.round((stamp-previous)/86400000); run = gap === 1 ? run+1 : 1; } else run=1; longestStreak=Math.max(longestStreak,run); previous=stamp; }
   const milestone = streakMilestone(longestStreak);
   const dayOfYear = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(today.getFullYear(), 0, 0)) / 86400000);
-  const dailyVerse = dailyVerses[(dayOfYear - 1) % dailyVerses.length];
+  const dailyVerse = managedDailyVerse ?? dailyVerses[(dayOfYear - 1) % dailyVerses.length];
   const activeJourneys = (activePlansResult.data ?? []).map((plan) => {
     const content = readingPlanContent.find((item) => item.title === plan.plan_slug);
     if (!content) return null;
