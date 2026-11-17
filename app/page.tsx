@@ -162,7 +162,8 @@ export default function HomePage() {
       .then(data => {
         if (!active) return;
         const allowed = ["devotional", "featured_scripture", "reading_journey", "announcement"];
-        setCmsHighlights((data?.items || []).filter((item: any) => allowed.includes(item.content_type) && typeof item.title === "string"));
+        const items = (data?.items || []) as Array<{ id: string; content_type: string; title: string; body: string; scripture_reference: string | null }>;
+        setCmsHighlights(items.filter(item => allowed.includes(item.content_type) && typeof item.title === "string"));
       })
       .catch(() => { /* The home page remains usable if managed content is unavailable. */ });
     return () => { active = false; };
