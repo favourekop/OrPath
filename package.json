@@ -17,7 +17,8 @@
     "@supabase/supabase-js": "^2.49.4",
     "posthog-js": "^1.300.0",
     "posthog-node": "^5.0.0",
-    "@vercel/analytics": "^1.5.0"
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
