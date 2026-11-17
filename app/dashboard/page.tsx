@@ -64,6 +64,8 @@ export default async function UserDashboard() {
   let managedDailyVerse: { reference: string; text: string; theme: string } | null = null;
   let managedJourneys: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
   let announcements: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
+  let devotionals: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
+  let featuredScripture: Array<{ id: string; title: string; body: string; reference: string | null }> = [];
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && serviceRoleKey) {
@@ -81,7 +83,7 @@ export default async function UserDashboard() {
         .maybeSingle(),
       adminDb.from("orpath_content")
         .select("id, content_type, title, body, scripture_reference, publish_at, created_at")
-        .in("content_type", ["reading_journey", "announcement"])
+        .in("content_type", ["reading_journey", "announcement", "devotional", "featured_scripture"])
         .eq("status", "published")
         .or("publish_at.is.null,publish_at.lte." + now)
         .order("publish_at", { ascending: false, nullsFirst: false })
@@ -92,6 +94,8 @@ export default async function UserDashboard() {
     const editorial = editorialResult.data ?? [];
     managedJourneys = editorial.filter(item => item.content_type === "reading_journey").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
     announcements = editorial.filter(item => item.content_type === "announcement").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
+    devotionals = editorial.filter(item => item.content_type === "devotional").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
+    featuredScripture = editorial.filter(item => item.content_type === "featured_scripture").map(item => ({ id: item.id, title: item.title, body: item.body || "", reference: item.scripture_reference }));
   }
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
@@ -144,6 +148,26 @@ export default async function UserDashboard() {
             <p style={{ fontSize: 12, fontWeight: 700, color: "#5d8064" }}>{dailyVerse.reference} · KJV</p>
             <p style={{ fontSize: 11, color: "var(--subtext)", marginTop: 8 }}>Your daily verse changes automatically with the calendar date.</p>
           </section>
+          {featuredScripture.length > 0 && <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">SELECTED SCRIPTURE</span><h2>Featured Scripture</h2></div><BookOpen size={21}/></div>
+            <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+              {featuredScripture.map(item => <article key={item.id} style={{ paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
+                <strong style={{ fontSize: 14 }}>{item.title}</strong>
+                {item.reference && <p style={{ fontSize: 10, color: "#5d8064", fontWeight: 700, marginTop: 5 }}>{item.reference}</p>}
+                <p style={{ fontFamily: "Georgia,serif", fontSize: 16, lineHeight: 1.8, marginTop: 8, whiteSpace: "pre-wrap" }}>{item.body}</p>
+              </article>)}
+            </div>
+          </section>}
+          {devotionals.length > 0 && <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">DAILY REFLECTIONS</span><h2>Devotionals</h2></div><Heart size={21}/></div>
+            <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+              {devotionals.map(item => <article key={item.id} style={{ paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
+                <strong style={{ fontSize: 14 }}>{item.title}</strong>
+                {item.reference && <p style={{ fontSize: 10, color: "#5d8064", fontWeight: 700, marginTop: 5 }}>{item.reference}</p>}
+                <p style={{ fontSize: 12, color: "var(--subtext)", lineHeight: 1.8, marginTop: 7, whiteSpace: "pre-wrap" }}>{item.body}</p>
+              </article>)}
+            </div>
+          </section>}
           {announcements.length > 0 && <section className="continue-panel" style={{ marginTop: 20, padding: 22 }}>
             <div className="panel-heading"><div><span className="section-kicker">ORPATH UPDATES</span><h2>Announcements</h2></div><CalendarDays size={21}/></div>
             <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
