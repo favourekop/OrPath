@@ -8,15 +8,19 @@ const CANONICAL_BOOK_NAMES = new Set([
  "genesis","exodus","leviticus","numbers","deuteronomy","joshua","judges","ruth","1 samuel","2 samuel","1 kings","2 kings","1 chronicles","2 chronicles","ezra","nehemiah","esther","job","psalms","psalm","proverbs","ecclesiastes","song of solomon","song of songs","isaiah","jeremiah","lamentations","ezekiel","daniel","hosea","joel","amos","obadiah","jonah","micah","nahum","habakkuk","zephaniah","haggai","zechariah","malachi",
  "matthew","mark","luke","john","acts","romans","1 corinthians","2 corinthians","galatians","ephesians","philippians","colossians","1 thessalonians","2 thessalonians","1 timothy","2 timothy","titus","philemon","hebrews","james","1 peter","2 peter","1 john","2 john","3 john","jude","revelation","revelation of john"
 ]);
-function keepCanonicalBooks(payload:any){
- if(!Array.isArray(payload?.data))return payload;
- return {...payload,data:payload.data.filter((book:any)=>{
-  const id=String(book?.id??"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-  const name=String(book?.name??book?.nameLong??"").toLowerCase().replace(/[._]/g," ").replace(/\s+/g," ").trim();
-  return CANONICAL_BOOK_IDS.has(id)||CANONICAL_BOOK_NAMES.has(name);
- })};
+type BibleBookRecord = { id?: unknown; name?: unknown; nameLong?: unknown; };
+type BibleApiPayload = Record<string, unknown> & { data?: unknown };
+function keepCanonicalBooks(payload: BibleApiPayload): BibleApiPayload {
+ if (!Array.isArray(payload.data)) return payload;
+ const books = payload.data.filter((value: unknown) => {
+  if (typeof value !== "object" || value === null) return false;
+  const book = value as BibleBookRecord;
+  const id = String(book.id ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const name = String(book.name ?? book.nameLong ?? "").toLowerCase().replace(/[._]/g, " ").replace(/\\s+/g, " ").trim();
+  return CANONICAL_BOOK_IDS.has(id) || CANONICAL_BOOK_NAMES.has(name);
+ });
+ return { ...payload, data: books };
 }
-
 export async function GET(request:NextRequest){
  const key=process.env.API_BIBLE_KEY;if(!key)return NextResponse.json({message:"API Bible key is not configured."},{status:503});
  const q=request.nextUrl.searchParams,resource=q.get("resource"),bible=q.get("bibleId"),book=q.get("bookId"),chapter=q.get("chapterId");
