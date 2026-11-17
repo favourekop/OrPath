@@ -52,6 +52,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [verseIndex, setVerseIndex] = useState(0);
   const [cmsVerse, setCmsVerse] = useState<{ref:string;text:string;theme:string}|null>(null);
+  const [cmsHighlights, setCmsHighlights] = useState<Array<{id:string;content_type:string;title:string;body:string;scripture_reference:string|null}>>([]);
   const [saved, setSaved] = useState<string[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showPrayer, setShowPrayer] = useState(false);
@@ -151,6 +152,19 @@ export default function HomePage() {
         }
       })
       .catch(() => { /* Keep the built-in daily verse if the CMS feed is unavailable. */ });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/content", { cache: "no-store" })
+      .then(async response => response.ok ? response.json() : null)
+      .then(data => {
+        if (!active) return;
+        const allowed = ["devotional", "featured_scripture", "reading_journey", "announcement"];
+        setCmsHighlights((data?.items || []).filter((item: any) => allowed.includes(item.content_type) && typeof item.title === "string"));
+      })
+      .catch(() => { /* The home page remains usable if managed content is unavailable. */ });
     return () => { active = false; };
   }, []);
 
@@ -305,6 +319,17 @@ export default function HomePage() {
               <div className="verse-bottom"><span className="verse-reference">{currentVerse.ref} <span>·</span> KJV</span><div className="verse-actions"><button title="Copy verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Copy size={16}/></button><button title="Share verse" onClick={() => shareVerse(currentVerse.text, currentVerse.ref)}><Share2 size={16}/></button><button title="Save verse" className={saved.includes(currentVerse.ref) ? "saved" : ""} onClick={() => toggleSaved(currentVerse.ref)}>{saved.includes(currentVerse.ref) ? <Check size={16}/> : <Bookmark size={16}/>}</button><button title="Next verse" onClick={() => { setCmsVerse(null); setVerseIndex((verseIndex + 1) % verses.length); }}><ArrowRight size={16}/></button></div></div>
               <div className="verse-progress">{verses.map((v, i) => <button key={v.ref} aria-label={"Show "+v.ref} className={i === verseIndex ? "current" : ""} onClick={() => setVerseIndex(i)}/>)}</div>
             </section>
+            {cmsHighlights.length > 0 && <section style={{display:"grid",gap:14,marginTop:22}}>
+              <div className="section-heading"><div><span className="section-kicker">FROM THE ORPATH EDITORIAL DESK</span><h2>Fresh from your community</h2></div></div>
+              <div className="practice-grid">
+                {cmsHighlights.map(item => <article key={item.id} className="practice-card" style={{cursor:"default",textAlign:"left",display:"grid",gap:9}}>
+                  <span className="card-overline">{item.content_type.replaceAll("_"," ")}</span>
+                  <strong>{item.title}</strong>
+                  {item.scripture_reference && <span className="card-overline">{item.scripture_reference}</span>}
+                  <p className="practice-desc" style={{whiteSpace:"pre-wrap",margin:0}}>{item.body}</p>
+                </article>)}
+              </div>
+            </section>}
             <div className="section-heading"><div><span className="section-kicker">A STEADY RHYTHM</span><h2>Your daily practice</h2></div><button className="text-link" onClick={() => nav("Plans")}>Explore plans <ArrowRight size={15}/></button></div>
             <div className="practice-grid">
               <button className="practice-card reading-card" onClick={() => nav("Read")}><span className="practice-icon"><BookOpen size={21}/></span><span className="card-overline">PICK UP WHERE YOU LEFT OFF</span><strong>Read the Bible</strong><span className="practice-desc">Return to the living Word, one passage at a time.</span><span className="card-footer">Open reader <ArrowRight size={16}/></span><span className="card-decoration">01</span></button>
