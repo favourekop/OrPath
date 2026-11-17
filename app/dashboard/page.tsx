@@ -61,7 +61,7 @@ export default async function UserDashboard() {
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
   ]);
 
-  let managedDailyVerse: { reference: string; text: string } | null = null;
+  let managedDailyVerse: { reference: string; text: string; theme: string } | null = null;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && serviceRoleKey) {
@@ -75,7 +75,7 @@ export default async function UserDashboard() {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (data?.body?.trim()) managedDailyVerse = { reference: data.scripture_reference || data.title, text: data.body };
+    if (data?.body?.trim()) managedDailyVerse = { reference: data.scripture_reference || data.title, text: data.body, theme: "FROM ORPATH" };
   }
 
   const displayName = profileResult.data?.display_name || user.user_metadata?.full_name || "Friend";
