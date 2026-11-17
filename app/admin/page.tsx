@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity } from "lucide-react";
+import { ArrowLeft, BookOpen, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity, FilePlus2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Admin Dashboard — OrPath" };
@@ -32,7 +32,7 @@ export default async function AdminDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/admin/analytics">Analytics <Activity size={14}/></Link><Link className="text-link" href="/admin/settings">Admin settings <ShieldCheck size={14}/></Link><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/admin/content">Content Studio <FilePlus2 size={14}/></Link><Link className="text-link" href="/admin/analytics">Analytics <Activity size={14}/></Link><Link className="text-link" href="/admin/settings">Admin settings <ShieldCheck size={14}/></Link><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
@@ -40,7 +40,7 @@ export default async function AdminDashboard() {
             <h1>Good day,<br/><em>{profile.display_name || "Favour"}.</em></h1>
             <p>OrPath platform overview. Manage the experience responsibly and keep the community growing.</p>
           </div>
-          <div className="practice-grid" style={{marginTop:28}}>
+          <div className="practice-grid" style={{marginTop:28}}><Link href="/admin/content" className="practice-card" style={{minHeight:130,textDecoration:"none",display:"flex",flexDirection:"column",justifyContent:"center",gap:10}}><span className="practice-icon"><FilePlus2 size={19}/></span><span className="card-overline">PUBLISHING & COMMUNITY</span><strong style={{fontSize:18}}>Content Studio</strong><span style={{fontSize:11,color:"var(--subtext)"}}>Daily verses, devotionals, journeys & announcements</span></Link>
             {metrics.map(({label,value,icon:Icon})=><section className="practice-card" key={label} style={{minHeight:130,cursor:"default"}}><span className="practice-icon"><Icon size={19}/></span><span className="card-overline">{label}</span><strong style={{fontSize:32}}>{value}</strong></section>)}
           </div>
           <section className="continue-panel" style={{marginTop:22}}>
