@@ -12,7 +12,7 @@ function keepCanonicalBooks(payload:any){
  if(!Array.isArray(payload?.data))return payload;
  return {...payload,data:payload.data.filter((book:any)=>{
   const id=String(book?.id??"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-  const name=String(book?.name??book?.nameLong??"").toLowerCase().replace(/[._]/g," ").replace(/\\s+/g," ").trim();
+  const name=String(book?.name??book?.nameLong??"").toLowerCase().replace(/[._]/g," ").replace(/\s+/g," ").trim();
   return CANONICAL_BOOK_IDS.has(id)||CANONICAL_BOOK_NAMES.has(name);
  })};
 }
