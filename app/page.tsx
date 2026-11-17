@@ -51,6 +51,7 @@ export default function HomePage() {
   const [dark, setDark] = useState(false);
   const [search, setSearch] = useState("");
   const [verseIndex, setVerseIndex] = useState(0);
+  const [cmsVerse, setCmsVerse] = useState<{ref:string;text:string;theme:string}|null>(null);
   const [saved, setSaved] = useState<string[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [showPrayer, setShowPrayer] = useState(false);
@@ -138,7 +139,22 @@ export default function HomePage() {
     return () => window.clearInterval(interval);
   }, []);
 
-  const currentVerse = verses[verseIndex];
+  useEffect(() => {
+    let active = true;
+    fetch("/api/content?type=daily_verse", { cache: "no-store" })
+      .then(async response => response.ok ? response.json() : null)
+      .then(data => {
+        if (!active) return;
+        const item = data?.items?.[0];
+        if (item && typeof item.body === "string" && item.body.trim()) {
+          setCmsVerse({ ref: item.scripture_reference || item.title, text: item.body, theme: "FROM ORPATH" });
+        }
+      })
+      .catch(() => { /* Keep the built-in daily verse if the CMS feed is unavailable. */ });
+    return () => { active = false; };
+  }, []);
+
+  const currentVerse = cmsVerse || verses[verseIndex];
   const filteredVerses = useMemo(() => verses.filter(v => (v.ref + " " + v.text).toLowerCase().includes(search.toLowerCase())), [search]);
 
   function notify(message: string) {
@@ -154,7 +170,7 @@ export default function HomePage() {
       if (error) { notify(error.message); return; }
       setSaved(prev => prev.filter(x => x !== ref)); notify("Removed from your saved verses");
     } else {
-      const verse = verses.find(item => item.ref === ref);
+      const verse = verses.find(item => item.ref === ref) || (cmsVerse?.ref === ref ? { ref: cmsVerse.ref, text: cmsVerse.text, theme: cmsVerse.theme } : undefined);
       const { error } = await supabase.from("saved_verses").upsert({ user_id: user.id, bible_id: "orpath-sample", verse_id: ref, reference: ref, verse_text: verse?.text || "" }, { onConflict: "user_id,bible_id,verse_id" });
       if (error) { notify(error.message); return; }
       setSaved(prev => [...prev, ref]); notify("Verse saved to your library");
@@ -286,7 +302,7 @@ export default function HomePage() {
               <div className="verse-top"><span><BookOpen size={15}/> VERSE OF THE DAY</span><span className="verse-date">TODAY’S LIGHT</span></div>
               <div className="ornament">“</div>
               <blockquote>{currentVerse.text}</blockquote>
-              <div className="verse-bottom"><span className="verse-reference">{currentVerse.ref} <span>·</span> KJV</span><div className="verse-actions"><button title="Copy verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Copy size={16}/></button><button title="Share verse" onClick={() => shareVerse(currentVerse.text, currentVerse.ref)}><Share2 size={16}/></button><button title="Save verse" className={saved.includes(currentVerse.ref) ? "saved" : ""} onClick={() => toggleSaved(currentVerse.ref)}>{saved.includes(currentVerse.ref) ? <Check size={16}/> : <Bookmark size={16}/>}</button><button title="Next verse" onClick={() => setVerseIndex((verseIndex + 1) % verses.length)}><ArrowRight size={16}/></button></div></div>
+              <div className="verse-bottom"><span className="verse-reference">{currentVerse.ref} <span>·</span> KJV</span><div className="verse-actions"><button title="Copy verse" onClick={() => copyVerse(currentVerse.text, currentVerse.ref)}><Copy size={16}/></button><button title="Share verse" onClick={() => shareVerse(currentVerse.text, currentVerse.ref)}><Share2 size={16}/></button><button title="Save verse" className={saved.includes(currentVerse.ref) ? "saved" : ""} onClick={() => toggleSaved(currentVerse.ref)}>{saved.includes(currentVerse.ref) ? <Check size={16}/> : <Bookmark size={16}/>}</button><button title="Next verse" onClick={() => { setCmsVerse(null); setVerseIndex((verseIndex + 1) % verses.length); }}><ArrowRight size={16}/></button></div></div>
               <div className="verse-progress">{verses.map((v, i) => <button key={v.ref} aria-label={"Show "+v.ref} className={i === verseIndex ? "current" : ""} onClick={() => setVerseIndex(i)}/>)}</div>
             </section>
             <div className="section-heading"><div><span className="section-kicker">A STEADY RHYTHM</span><h2>Your daily practice</h2></div><button className="text-link" onClick={() => nav("Plans")}>Explore plans <ArrowRight size={15}/></button></div>
