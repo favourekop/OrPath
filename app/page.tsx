@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import { useEffect, useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
+import SiteFooter from "./components/SiteFooter";
 import { readingPlanContent } from "./reading-plan-content";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -383,7 +384,6 @@ export default function HomePage() {
           {tab === "Prayer" && <section className="page-section"><div className="page-intro"><span className="section-kicker">A QUIET PLACE FOR THE HEART</span><h1>Come as you <em>are.</em></h1><p>There is room here for gratitude, questions, hope, and honest prayer.</p></div><div className="prayer-writing"><div className="prayer-heading"><Heart size={20}/><div><strong>Your prayer journal</strong><span>Private to your OrPath account</span></div></div><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="God, today I want to bring..." rows={5}/><div className="prayer-footer"><span>{prayer.length} characters</span><button className="solid-button" onClick={()=>void savePrayerEntry(false)}><NotebookPen size={16}/> Save prayer</button></div></div><div className="section-heading"><div><span className="section-kicker">YOUR REFLECTIONS</span><h2>Held in prayer</h2></div><span className="results-count">{prayers.length} entries</span></div>{prayers.length===0?<div className="empty-state"><span><Heart size={22}/></span><strong>Your journal begins here.</strong><p>Your private prayers will appear here after you save your first entry.</p></div>:<div className="saved-list">{prayers.map((p,i)=><article key={i} className="saved-row"><span className="saved-mark"><Heart size={17}/></span><div><p>{p}</p><small>Just now · Personal prayer</small></div><button className="icon-button" aria-label="Delete prayer" onClick={()=>setPrayers(prev=>prev.filter((_,idx)=>idx!==i))}><X size={16}/></button></article>)}</div>}</section>}
 
           {tab === "Saved" && <section className="page-section"><div className="page-intro"><span className="section-kicker">WORDS TO RETURN TO</span><h1>Your <em>library.</em></h1><p>Keep meaningful passages close, ready for another quiet moment.</p></div><div className="section-heading"><div><span className="section-kicker">PERSONAL COLLECTION</span><h2>Saved verses</h2></div><span className="results-count">{saved.length} saved</span></div>{saved.length===0?<div className="empty-state"><span><Bookmark size={22}/></span><strong>Save a verse that speaks to you.</strong><p>Use the bookmark icon on a verse to keep it here.</p><button className="outline-button" onClick={()=>nav("Read")}>Open Bible reader <ArrowRight size={15}/></button></div>:<div className="saved-list">{saved.map(ref=><article className="saved-row" key={ref}><span className="saved-mark"><Bookmark size={17}/></span><div><strong>{ref}</strong><p>{verses.find(v=>v.ref===ref)?.text || "A verse you&apos;ve saved for later reflection."}</p><small>Saved to your library</small></div><button className="icon-button" aria-label={"Remove "+ref} onClick={()=>toggleSaved(ref)}><X size={16}/></button></article>)}</div>}<div className="library-note"><CircleHelp size={17}/><p>Your saved verses sync privately to your OrPath account.</p></div></section>}
-          <footer className="footer"><span>© 2026 OrPath</span><span><span className="footer-dot"/> Made for the journey.</span><a className="text-link" href="/about">About the founder <ArrowRight size={13}/></a></footer>
         </div>
       </section>
 
@@ -391,6 +391,7 @@ export default function HomePage() {
 
       {showPrayer && <div className="modal-backdrop" onClick={()=>setShowPrayer(false)}><section className="prayer-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="section-kicker">MAKE ROOM FOR STILLNESS</span><h2>A moment of prayer</h2></div><button className="icon-button" onClick={()=>setShowPrayer(false)}><X size={18}/></button></div><p className="modal-quote">“Be still, and know that I am God.” <span>— Psalm 46:10</span></p><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="What is on your heart today?" rows={5}/><button className="solid-button full-button" onClick={()=>void savePrayerEntry(true)}><Heart size={16}/> Keep this prayer</button><p className="modal-footnote">Your prayer is saved privately to your OrPath account.</p></section></div>}
       {notice && <div className="toast"><Check size={16}/>{notice}</div>}
+      <SiteFooter />
     </main>
   );
 }
