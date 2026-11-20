@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import OfflineSupport from "./components/OfflineSupport";
+import SiteFooterGate from "./components/SiteFooterGate";
 import { PostHogProvider } from "./providers";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body>
-        <PostHogProvider>{children}<OfflineSupport /><Analytics /><SpeedInsights /></PostHogProvider>
+        <PostHogProvider>{children}<SiteFooterGate /><OfflineSupport /><Analytics /><SpeedInsights /></PostHogProvider>
       </body>
     </html>
   );
