@@ -331,3 +331,35 @@
   .topbar .brand-name { min-width: max-content !important; }
   .topbar .brand-name .brand-word { white-space: nowrap !important; }
 }
+
+
+/* Shared OrPath footer */
+.site-footer{margin:54px -28px 0;padding:38px 30px 18px;background:#103c2e;color:#f7f5ed;border-top:1px solid #ffffff1a}
+.site-footer-inner{width:100%;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:minmax(220px,1.5fr) repeat(3,minmax(120px,1fr));gap:32px}
+.site-footer-brand{max-width:310px}
+.site-footer-logo{display:inline-flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+.site-footer-mark{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#f1eee3;color:#174a36}
+.site-footer-logo strong{display:block;font-size:25px;letter-spacing:-1.3px;line-height:1}
+.site-footer-logo strong span{color:#c2a36a}
+.site-footer-logo small{display:block;margin-top:5px;color:#c8d5ca;font-size:8px;letter-spacing:1.8px}
+.site-footer-brand>p{max-width:285px;margin:17px 0;color:#d3ded5;font-size:12px;line-height:1.8}
+.site-footer-share{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #ffffff50;border-radius:8px;background:transparent;color:#fff;font:inherit;font-size:11px;cursor:pointer}
+.site-footer-share:hover{background:#ffffff12}
+.site-footer-notice{display:block;margin-top:8px;color:#e5d5ad;font-size:10px}
+.site-footer-group{display:grid;align-content:start;gap:12px}
+.site-footer-group h3{margin:3px 0 5px;color:#fff;font-size:12px;letter-spacing:.08em}
+.site-footer-group a{display:flex;align-items:center;justify-content:space-between;gap:7px;color:#d4dfd6;text-decoration:none;font-size:11px;line-height:1.5}
+.site-footer-group a:hover{color:#fff}
+.site-footer-bottom{max-width:1180px;margin:30px auto 0;padding-top:15px;border-top:1px solid #ffffff2b;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#cbd8ce;font-size:10px}
+.site-footer-bottom span{display:inline-flex;align-items:center;gap:6px}
+.site-footer-bottom a{color:#e6d9bb;text-decoration:none}
+@media(max-width:760px){.site-footer{margin:42px -16px 0;padding:30px 19px 16px}.site-footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 18px}.site-footer-brand{grid-column:1/-1;max-width:none}.site-footer-brand>p{max-width:360px}.site-footer-bottom{align-items:flex-start;flex-direction:column;gap:9px;margin-top:24px}}
+@media(max-width:380px){.site-footer{margin-left:-11px;margin-right:-11px;padding-left:14px;padding-right:14px}.site-footer-inner{gap:22px 12px}.site-footer-group a{font-size:10px}}
+.passage-verse-select{cursor:pointer;transition:background .15s,border-color .15s;border-radius:9px}
+.passage-verse-select:hover,.passage-verse-select.is-selected{background:#edf2e9}
+.dark .passage-verse-select:hover,.dark .passage-verse-select.is-selected{background:#20392d}
+.passage-verse-actions{display:flex;flex-wrap:wrap;gap:7px;padding:0 10px 12px 3.1rem}
+.passage-verse-actions button{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--subtext);font-size:10px;cursor:pointer}
+.passage-verse-actions button:hover,.passage-verse-actions button.is-saved{border-color:#8fa991;color:var(--forest);background:#edf2e9}
+.dark .passage-verse-actions button:hover,.dark .passage-verse-actions button.is-saved{color:#d8e9d9;background:#20392d}
+@media(max-width:760px){.passage-verse-actions{padding-left:2.5rem}.passage-verse-actions button{padding:8px 10px;font-size:10px}}
