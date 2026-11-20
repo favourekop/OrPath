@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ArrowUpRight, BookOpen, Heart, Share2 } from "lucide-react";
 
 const groups = [
@@ -24,14 +25,14 @@ export default function SiteFooter() {
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-brand">
-          <a href="/" className="site-footer-logo" aria-label="OrPath home"><span className="site-footer-mark"><BookOpen size={22}/></span><span><strong>orpath<span>.</span></strong><small>LET THE WORD LEAD</small></span></a>
+          <Link href="/" className="site-footer-logo" aria-label="OrPath home"><span className="site-footer-mark"><BookOpen size={22}/></span><span><strong>orpath<span>.</span></strong><small>LET THE WORD LEAD</small></span></a>
           <p>A thoughtful space to read Scripture, grow in faith, and keep the Word close through every season.</p>
           <button className="site-footer-share" type="button" onClick={share}><Share2 size={15}/> Share OrPath</button>
           {notice && <span className="site-footer-notice" role="status">{notice}</span>}
         </div>
-        {groups.map(group => <nav className="site-footer-group" key={group.title} aria-label={group.title}><h3>{group.title}</h3>{group.links.map(link => <a href={link.href} key={link.label}>{link.label}<ArrowUpRight size={12}/></a>)}</nav>)}
+        {groups.map(group => <nav className="site-footer-group" key={group.title} aria-label={group.title}><h3>{group.title}</h3>{group.links.map(link => <Link href={link.href} key={link.label}>{link.label}<ArrowUpRight size={12}/></Link>)}</nav>)}
       </div>
-      <div className="site-footer-bottom"><span>© {new Date().getFullYear()} OrPath. All rights reserved.</span><span><Heart size={13}/> Made for the journey.</span><a href="/about">Let the Word Lead</a></div>
+      <div className="site-footer-bottom"><span>© {new Date().getFullYear()} OrPath. All rights reserved.</span><span><Heart size={13}/> Made for the journey.</span><Link href="/about">Let the Word Lead</Link></div>
     </footer>
   );
 }
