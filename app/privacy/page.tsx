@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import SiteFooter from "../components/SiteFooter";
 
 export const metadata: Metadata = { title: "Privacy Policy | OrPath", description: "Learn how OrPath handles account information, saved Scripture, prayer entries and usage analytics." };
 
@@ -19,6 +18,6 @@ export default function PrivacyPage() {
       <h2>Your choices</h2><p>You can stop using OrPath, sign out, and manage available account information through your account settings. For a privacy or account-data request, contact the OrPath team through the <Link href="/about">About OrPath page</Link>.</p>
       <h2>Changes to this policy</h2><p>This policy may be updated as OrPath features and service providers change. The latest revision date will be shown at the top of this page.</p>
       <p className="legal-disclaimer">This is an initial product privacy notice and should be reviewed against the final production data flows and applicable legal requirements before being treated as a complete legal policy.</p>
-    </article><SiteFooter />
+    </article>
   </main>;
 }
