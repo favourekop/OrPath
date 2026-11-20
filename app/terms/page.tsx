@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import SiteFooter from "../components/SiteFooter";
 
 export const metadata: Metadata = { title: "Terms of Service | OrPath", description: "Read the basic terms for using OrPath." };
 
@@ -19,6 +18,6 @@ export default function TermsPage() {
       <h2>Personal reflections</h2><p>OrPath&apos;s reading and prayer tools are intended for personal reflection and study. They are not a substitute for professional, pastoral, medical, legal or emergency assistance.</p>
       <h2>Contact and updates</h2><p>We may update these terms as the service develops. For questions, visit the <Link href="/about">About OrPath page</Link>.</p>
       <p className="legal-disclaimer">These are initial service terms and should receive legal review before being relied on as a complete binding agreement.</p>
-    </article><SiteFooter />
+    </article>
   </main>;
 }
