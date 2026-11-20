@@ -49,7 +49,7 @@ export default async function UserDashboard() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth");
 
-  const [profileResult, savedCount, prayerCount, progressCount, planCount, activePlansResult, recentSaved, recentPrayers, progressDays] = await Promise.all([
+  const [profileResult, savedCount, prayerCount, progressCount, planCount, activePlansResult, recentSaved, recentAnnotations, recentPrayers, progressDays] = await Promise.all([
     supabase.from("profiles").select("display_name, avatar_url, role").eq("id", user.id).maybeSingle(),
     supabase.from("saved_verses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("prayer_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
@@ -57,6 +57,7 @@ export default async function UserDashboard() {
     supabase.from("user_reading_plans").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("user_reading_plans").select("plan_slug, started_at, completed_days").eq("user_id", user.id).order("started_at", { ascending: false }),
     supabase.from("saved_verses").select("id, reference, verse_text, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(4),
+    supabase.from("verse_annotations").select("id, reference, verse_text, highlight_color, note, created_at").eq("user_id", user.id).order("updated_at", { ascending: false }).limit(8),
     supabase.from("prayer_entries").select("id, title, content, is_answered, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
     supabase.from("reading_progress").select("completed_at").eq("user_id", user.id).order("completed_at", { ascending: false }).limit(500),
   ]);
@@ -233,6 +234,20 @@ export default async function UserDashboard() {
               <Link className="text-link" href="/">Continue your journey <ArrowLeft size={14}/></Link>
             </section>
           </div>
+          <section className="continue-panel" style={{ marginTop: 22, padding: 22 }}>
+            <div className="panel-heading"><div><span className="section-kicker">YOUR PERSONAL SCRIPTURE</span><h2>Highlights &amp; notes</h2></div><BookMarked size={20}/></div>
+            {(recentAnnotations.data ?? []).length ? <div style={{ display: "grid", gap: 13, marginTop: 18 }}>
+              {recentAnnotations.data!.map(item => <article key={item.id} style={{ padding: 14, border: "1px solid var(--border)", borderRadius: 12, background: "rgba(232,239,230,.28)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <strong style={{ fontSize: 13 }}>{item.reference}</strong>
+                  {item.highlight_color && <span style={{ fontSize: 9, letterSpacing: ".08em", fontWeight: 800, textTransform: "uppercase", borderRadius: 20, padding: "4px 8px", background: item.highlight_color === "yellow" ? "#fff1b8" : item.highlight_color === "green" ? "#d9eddb" : item.highlight_color === "blue" ? "#dceafa" : "#f7dfe9", color: "#314536" }}>{item.highlight_color} highlight</span>}
+                </div>
+                <p style={{ fontFamily: "Georgia,serif", fontSize: 14, lineHeight: 1.75, marginTop: 8 }}>{item.verse_text || "Saved Scripture"}</p>
+                {item.note && <p style={{ fontSize: 12, lineHeight: 1.75, color: "var(--subtext)", marginTop: 8, whiteSpace: "pre-wrap" }}>{item.note}</p>}
+              </article>)}
+            </div> : <p style={{ fontSize: 12, lineHeight: 1.8, color: "var(--subtext)", marginTop: 16 }}>Your personal verse highlights and notes will appear here. Open a verse in the Bible reader, choose a highlight colour, or add a private note.</p>}
+            <Link className="text-link" href="/bible">Open Bible reader <ArrowLeft size={14}/></Link>
+          </section>
           <section className="continue-panel" style={{marginTop:20}}>
             <div className="panel-heading"><div><span className="section-kicker">KEEP YOUR RHYTHM</span><h2>Make space for today.</h2></div><CalendarDays size={20}/></div>
             <p style={{fontSize:12,color:"var(--subtext)",lineHeight:1.8,marginTop:8}}>Return to the Bible reader, continue a plan, or spend a few quiet moments in prayer.</p>
