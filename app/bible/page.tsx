@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import BibleReader from "../components/BibleReader";
-import SiteFooter from "../components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Read the Bible | OrPath",
@@ -21,6 +20,5 @@ export default function BiblePage() {
       <p>Choose a translation, book and chapter. Tap any verse to bookmark, copy or share it.</p>
       <BibleReader />
     </section>
-    <SiteFooter />
   </main>;
 }
