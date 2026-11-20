@@ -363,3 +363,22 @@
 .passage-verse-actions button:hover,.passage-verse-actions button.is-saved{border-color:#8fa991;color:var(--forest);background:#edf2e9}
 .dark .passage-verse-actions button:hover,.dark .passage-verse-actions button.is-saved{color:#d8e9d9;background:#20392d}
 @media(max-width:760px){.passage-verse-actions{padding-left:2.5rem}.passage-verse-actions button{padding:8px 10px;font-size:10px}}
+
+
+/* Dedicated Scripture and legal routes */
+.legal-page-shell{min-height:100vh;background:#fbfaf7;color:#19382c}
+.legal-page-header{height:72px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,5vw,64px);border-bottom:1px solid #e5e7df;background:#fff}
+.legal-back-link{display:inline-flex;align-items:center;gap:8px;color:#597365;text-decoration:none;font-size:12px;font-weight:600}
+.legal-page-brand{display:inline-flex;align-items:center;gap:5px;color:#19382c;font-size:21px;font-weight:800;letter-spacing:-1px}
+.legal-page-brand span{color:#b9995d}
+.legal-page-content{width:min(100% - 36px,820px);margin:0 auto;padding:54px 0 72px}
+.legal-page-content h1{margin:9px 0 14px;font-family:"DM Serif Display",serif;font-size:clamp(42px,7vw,68px);font-weight:400;letter-spacing:-1.8px;line-height:1.08}
+.legal-page-content h1 em{color:#66836f;font-weight:400}
+.legal-page-content>p{max-width:760px;color:#69776e;font-size:14px;line-height:1.9}
+.legal-page-content h2{margin:30px 0 8px;color:#19382c;font-family:"DM Serif Display",serif;font-size:24px;font-weight:400}
+.legal-page-content a{color:#426d52}
+.legal-updated{font-size:11px!important;letter-spacing:.04em}
+.legal-disclaimer{margin-top:30px;padding:14px 16px;border-left:3px solid #b9995d;background:#f0f1e9;color:#647267!important;font-size:11px!important}
+.bible-route-content{width:min(100% - 36px,1000px)}
+.bible-route-content>.orpath-live-reader{margin-top:28px}
+@media(max-width:760px){.legal-page-header{height:64px;padding:0 17px}.legal-page-content{padding:38px 0 48px}.legal-page-content h2{margin-top:25px}}
