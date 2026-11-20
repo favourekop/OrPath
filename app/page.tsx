@@ -4,7 +4,6 @@ import Image from "next/image";
 
 import { useEffect, useMemo, useState } from "react";
 import BibleReader from "./components/BibleReader";
-import SiteFooter from "./components/SiteFooter";
 import { readingPlanContent } from "./reading-plan-content";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -182,7 +181,7 @@ export default function HomePage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { window.location.href = "/auth"; return; }
     if (saved.includes(ref)) {
-      const { error } = await supabase.from("saved_verses").delete().eq("user_id", user.id).eq("verse_id", ref);
+      const { error } = await supabase.from("saved_verses").delete().eq("user_id", user.id).eq("reference", ref);
       if (error) { notify(error.message); return; }
       setSaved(prev => prev.filter(x => x !== ref)); notify("Removed from your saved verses");
     } else {
@@ -391,7 +390,6 @@ export default function HomePage() {
 
       {showPrayer && <div className="modal-backdrop" onClick={()=>setShowPrayer(false)}><section className="prayer-modal" onClick={e=>e.stopPropagation()}><div className="modal-head"><div><span className="section-kicker">MAKE ROOM FOR STILLNESS</span><h2>A moment of prayer</h2></div><button className="icon-button" onClick={()=>setShowPrayer(false)}><X size={18}/></button></div><p className="modal-quote">“Be still, and know that I am God.” <span>— Psalm 46:10</span></p><textarea value={prayer} onChange={e=>setPrayer(e.target.value)} placeholder="What is on your heart today?" rows={5}/><button className="solid-button full-button" onClick={()=>void savePrayerEntry(true)}><Heart size={16}/> Keep this prayer</button><p className="modal-footnote">Your prayer is saved privately to your OrPath account.</p></section></div>}
       {notice && <div className="toast"><Check size={16}/>{notice}</div>}
-      <SiteFooter />
     </main>
   );
 }
