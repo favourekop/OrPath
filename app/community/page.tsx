@@ -234,7 +234,7 @@ export default function CommunityPage() {
 
         <section className="community-main">
           <div className="community-heading">
-            <div><span className="community-eyebrow">ORPATH COMMUNITY</span><h2>Welcome, {ownName.split(" ")[0]}.</h2><p>A little encouragement can change someone's day.</p></div>
+            <div><span className="community-eyebrow">ORPATH COMMUNITY</span><h2>Welcome, {ownName.split(" ")[0]}.</h2><p>A little encouragement can change someone&apos;s day.</p></div>
             <div className="community-member-chip"><Users size={15}/> For OrPath members</div>
           </div>
           <nav className="community-tabs" aria-label="Community sections">
