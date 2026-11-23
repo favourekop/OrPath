@@ -63,10 +63,25 @@ export default function ScriptureLibraryPage() {
     setError("");
     try {
       const supabase = createClient();
+      // Check the browser session first so a signed-out visitor is sent to
+      // sign-in instead of seeing Supabase's raw "Auth session missing" error.
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) {
+        router.replace("/auth?next=%2Flibrary");
+        return;
+      }
+
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError) throw authError;
+      if (authError) {
+        if (authError.name === "AuthSessionMissingError") {
+          router.replace("/auth?next=%2Flibrary");
+          return;
+        }
+        throw authError;
+      }
       if (!user) {
-        router.replace("/auth");
+        router.replace("/auth?next=%2Flibrary");
         return;
       }
       const [{ data: saved, error: savedError }, { data: annotations, error: annotationError }] = await Promise.all([
