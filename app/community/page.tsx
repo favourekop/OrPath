@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Check, ChevronDown, CircleAlert, Heart, LoaderCircle, LockKeyhole, MessageCircle, Plus, Send, Shield, Sparkles, Users, HandHeart, BookMarked, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, BookOpen, Check, CircleAlert, Heart, LoaderCircle, LockKeyhole, MessageCircle, Plus, Send, Shield, Sparkles, Users, HandHeart, BookMarked, MoreHorizontal, Copy } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import "./community.css";
 
@@ -68,6 +68,13 @@ export default function CommunityPage() {
       return;
     }
     setUserId(auth.user.id);
+    const inviteToken = new URLSearchParams(window.location.search).get("invite");
+    if (inviteToken) {
+      const { data: joined, error: inviteError } = await supabase.rpc("community_join_group_by_invite", { invite_token: inviteToken });
+      if (inviteError) setError(inviteError.message);
+      else if (joined?.[0]?.joined_group_name) setMessage("You joined " + joined[0].joined_group_name + ". Welcome!");
+      window.history.replaceState({}, "", "/community");
+    }
     const { data: baseProfile } = await supabase.from("profiles").select("display_name,avatar_url").eq("id", auth.user.id).maybeSingle();
     const name = baseProfile?.display_name || auth.user.user_metadata?.full_name || auth.user.email?.split("@")[0] || "OrPath member";
     setDisplayName(name);
@@ -191,6 +198,14 @@ export default function CommunityPage() {
     setBusy(false);
   };
 
+  const createGroupInvite = async (groupId: string) => {
+    const { data, error: inviteError } = await supabase.from("community_group_invites").insert({ group_id: groupId, created_by: userId }).select("id").single();
+    if (inviteError || !data) { setError(inviteError?.message || "Could not create the invitation."); return; }
+    const inviteUrl = window.location.origin + "/community?invite=" + data.id;
+    try { await navigator.clipboard.writeText(inviteUrl); setMessage("Private group invitation copied. Share it with the people you want to invite."); }
+    catch { setMessage("Invitation created: " + inviteUrl); }
+  };
+
   const reportPost = async (postId: string) => {
     const reason = window.prompt("What should the OrPath moderation team review?");
     if (!reason?.trim()) return;
@@ -299,6 +314,7 @@ export default function CommunityPage() {
                     <h4>{group.name}</h4><p>{group.description || "A space to learn, reflect and encourage one another through Scripture."}</p>
                     <span className="community-group-owner">Started by {owner?.display_name || "OrPath member"}</span>
                     {membership === "active" ? <span className="community-member-status"><Check size={14}/> Member</span> : membership === "pending" ? <span className="community-member-status pending"><LoaderCircle size={14}/> Request pending</span> : <button className="community-group-join" onClick={() => void joinGroup(group)}>{group.visibility === "private" ? "Request to join" : "Join group"} <ArrowLeft size={14}/></button>}
+                    {group.visibility === "private" && group.created_by === userId && <button className="community-group-join community-invite" onClick={() => void createGroupInvite(group.id)}><Copy size={13}/> Copy invite link</button>}
                   </article>;
                 })}
               </div>
