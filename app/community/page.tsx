@@ -8,7 +8,7 @@ import "./community.css";
 
 type Tab = "feed" | "prayer" | "groups";
 type CommunityPost = { id: string; author_id: string; body: string; post_type: string; scripture_reference: string | null; created_at: string; };
-type Prayer = { id: string; author_id: string; title: string; body: string; visibility: string; status: string; created_at: string; };
+type Prayer = { id: string; author_id: string | null; is_mine: boolean; title: string; body: string; visibility: string; status: string; created_at: string; };
 type Group = { id: string; created_by: string; name: string; description: string; visibility: "public" | "private"; created_at: string; };
 type MemberProfile = { user_id: string; display_name: string; avatar_url: string | null; bio: string; };
 type Comment = { id: string; post_id: string; author_id: string; body: string; created_at: string; };
@@ -87,7 +87,7 @@ export default function CommunityPage() {
 
     const [postResult, prayerResult, groupResult, membershipResult] = await Promise.all([
       supabase.from("community_posts").select("id,author_id,body,post_type,scripture_reference,created_at").eq("status", "published").order("created_at", { ascending: false }).limit(40),
-      supabase.from("community_prayer_requests").select("id,author_id,title,body,visibility,status,created_at").in("status", ["active","answered"]).order("created_at", { ascending: false }).limit(50),
+      supabase.from("community_prayer_wall").select("id,author_id,is_mine,title,body,visibility,status,created_at").in("status", ["active","answered"]).order("created_at", { ascending: false }).limit(50),
       supabase.from("community_groups").select("id,created_by,name,description,visibility,created_at").order("created_at", { ascending: false }).limit(60),
       supabase.from("community_group_members").select("group_id,status").eq("user_id", auth.user.id),
     ]);
@@ -99,7 +99,7 @@ export default function CommunityPage() {
     const groupRows = (groupResult.data || []) as Group[];
     setPosts(postRows); setPrayers(prayerRows); setGroups(groupRows);
     setMemberships(Object.fromEntries((membershipResult.data || []).map(m => [m.group_id, m.status])));
-    const ids = [...postRows.map(p => p.author_id), ...prayerRows.filter(p => p.visibility !== "anonymous").map(p => p.author_id), ...groupRows.map(g => g.created_by)];
+    const ids = [...postRows.map(p => p.author_id), ...prayerRows.filter(p => p.visibility !== "anonymous" && p.author_id).map(p => p.author_id as string), ...groupRows.map(g => g.created_by)];
     await loadProfiles(ids);
     if (postRows.length) {
       const postIds = postRows.map(p => p.id);
@@ -297,9 +297,9 @@ export default function CommunityPage() {
               </section>
               <div className="community-feed-label"><span>PRAYER WALL</span><span>{prayers.length} requests</span></div>
               {prayers.length ? prayers.map(prayer => <article className="community-prayer" key={prayer.id}>
-                <div className="community-prayer-head"><span className="community-prayer-icon"><HandHeart size={17}/></span><div><strong>{prayer.visibility === "anonymous" ? "A community member" : profileFor(prayer.author_id)?.display_name || "Your prayer"}</strong><span>{timeAgo(prayer.created_at)} · {prayer.visibility === "private" ? "Private to you" : prayer.status === "answered" ? "Answered prayer" : "In prayer"}</span></div>{prayer.visibility === "private" && <LockKeyhole size={15}/>}</div>
+                <div className="community-prayer-head"><span className="community-prayer-icon"><HandHeart size={17}/></span><div><strong>{prayer.visibility === "anonymous" ? "A community member" : (prayer.author_id ? profileFor(prayer.author_id)?.display_name : null) || "Your prayer"}</strong><span>{timeAgo(prayer.created_at)} · {prayer.visibility === "private" ? "Private to you" : prayer.status === "answered" ? "Answered prayer" : "In prayer"}</span></div>{prayer.visibility === "private" && <LockKeyhole size={15}/>}</div>
                 <h4>{prayer.title}</h4><p>{prayer.body}</p>
-                {prayer.author_id === userId && prayer.status === "active" && <button className="community-mark-answered" onClick={async () => { const { error: updateError } = await supabase.from("community_prayer_requests").update({ status: "answered" }).eq("id", prayer.id).eq("author_id", userId); if (updateError) setError(updateError.message); else await loadAll(); }}><Check size={14}/> Mark as answered</button>}
+                {prayer.is_mine && prayer.status === "active" && <button className="community-mark-answered" onClick={async () => { const { error: updateError } = await supabase.from("community_prayer_requests").update({ status: "answered" }).eq("id", prayer.id).eq("author_id", userId); if (updateError) setError(updateError.message); else await loadAll(); }}><Check size={14}/> Mark as answered</button>}
               </article>) : <div className="community-empty"><HandHeart size={26}/><strong>There is room for hope here.</strong><p>Be the first to share a prayer request.</p></div>}
             </>}
 
