@@ -64,7 +64,9 @@ export default function CommunityPage() {
     setError("");
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) {
-      window.location.href = "/auth?next=%2Fcommunity";
+      const pendingInvite = new URLSearchParams(window.location.search).get("invite");
+      const destination = pendingInvite ? "/community?invite=" + encodeURIComponent(pendingInvite) : "/community";
+      window.location.href = "/auth?next=" + encodeURIComponent(destination);
       return;
     }
     setUserId(auth.user.id);
