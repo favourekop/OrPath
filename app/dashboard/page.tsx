@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck, Library } from "lucide-react";
+import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck, Library, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { readingPlanContent } from "@/app/reading-plan-content";
