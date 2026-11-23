@@ -9,6 +9,11 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, LoaderCircle, LockKeyhole, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
+function getSafeNextPath() {
+  const candidate = new URLSearchParams(window.location.search).get("next");
+  return candidate && candidate.startsWith("/") && !candidate.startsWith("//") ? candidate : "/";
+}
+
 function friendlyAuthError(cause: unknown, context: "google" | "email") {
   const message = cause instanceof Error ? cause.message.toLowerCase() : "";
   if (context === "google") {
@@ -39,7 +44,7 @@ export default function AuthPage() {
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(getSafeNextPath())}` },
       });
       if (oauthError) throw oauthError;
     } catch (cause) {
@@ -66,12 +71,12 @@ export default function AuthPage() {
           email, password, options: { data: { full_name: name.trim() } },
         });
         if (authError) throw authError;
-        if (data.session) router.replace("/");
+        if (data.session) router.replace(getSafeNextPath());
         else setMessage("Account created. Check your email for the confirmation link, then sign in.");
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
         if (authError) throw authError;
-        router.replace("/");
+        router.replace(getSafeNextPath());
         router.refresh();
       }
     } catch (cause) {
