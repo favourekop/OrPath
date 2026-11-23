@@ -154,7 +154,7 @@ export default function CommunityPage() {
     setBusy(true);
     const { error: saveError } = await supabase.from("community_comments").insert({ post_id: postId, author_id: userId, body: commentBody.trim() });
     if (saveError) setError(saveError.message);
-    else { setCommentBody(""); await openComments(postId); setCommentCounts(old => ({ ...old, [postId]: (old[postId] || 0) + 1 })); }
+    else { setCommentBody(""); const { data: refreshed } = await supabase.from("community_comments").select("id,post_id,author_id,body,created_at").eq("post_id", postId).order("created_at", { ascending: true }).limit(50); const rows = (refreshed || []) as Comment[]; setComments(rows); const ids = rows.map(item => item.author_id); if (ids.length) { const { data: authors } = await supabase.from("community_profiles").select("user_id,display_name,avatar_url,bio").in("user_id", ids); if (authors) setCommentAuthors(Object.fromEntries(authors.map(item => [item.user_id, item as MemberProfile]))); } setCommentCounts(old => ({ ...old, [postId]: rows.length })); }
     setBusy(false);
   };
 
