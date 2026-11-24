@@ -5,6 +5,9 @@
 alter table public.profiles
   add column if not exists streak_leaderboard_opt_in boolean not null default false;
 
+-- Preserve owner-only profile updates while allowing members to change this one preference.
+grant update (streak_leaderboard_opt_in) on public.profiles to authenticated;
+
 create or replace function public.orpath_admin_engagement_stats()
 returns jsonb
 language plpgsql
