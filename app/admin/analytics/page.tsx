@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Activity, Users, BookOpen, Heart, MessageCircle, HandHeart, ShieldCheck, Flame, Flag, BookMarked, ExternalLink, UsersRound } from "lucide-react";
+import { ArrowLeft, Activity, Users, BookOpen, Heart, MessageCircle, HandHeart, ShieldCheck, Flame, Flag, ExternalLink, UsersRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Analytics — OrPath Admin" };
