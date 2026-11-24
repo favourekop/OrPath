@@ -385,3 +385,48 @@
 
 /* Scripture highlights and personal verse notes */
 .passage-verse-select{border-radius:9px;padding:7px 10px;margin:0 -10px;transition:background .18s,box-shadow .18s;cursor:pointer}.passage-verse-select.is-selected{background:#f0f4ec;box-shadow:inset 3px 0 0 var(--gold)}.dark .passage-verse-select.is-selected{background:#263c30}.passage-verse-select.highlight-yellow{background:linear-gradient(transparent 28%,#f7e8a8 28%,#f7e8a8 92%,transparent 92%)}.passage-verse-select.highlight-green{background:linear-gradient(transparent 28%,#d6ead4 28%,#d6ead4 92%,transparent 92%)}.passage-verse-select.highlight-blue{background:linear-gradient(transparent 28%,#d8e8f5 28%,#d8e8f5 92%,transparent 92%)}.passage-verse-select.highlight-pink{background:linear-gradient(transparent 28%,#f4dce2 28%,#f4dce2 92%,transparent 92%)}.dark .passage-verse-select.highlight-yellow{background:linear-gradient(transparent 28%,#67592e 28%,#67592e 92%,transparent 92%)}.dark .passage-verse-select.highlight-green{background:linear-gradient(transparent 28%,#31533a 28%,#31533a 92%,transparent 92%)}.dark .passage-verse-select.highlight-blue{background:linear-gradient(transparent 28%,#294a61 28%,#294a61 92%,transparent 92%)}.dark .passage-verse-select.highlight-pink{background:linear-gradient(transparent 28%,#603b4b 28%,#603b4b 92%,transparent 92%)}.passage-verse-actions{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:10px 12px;margin:3px 0 14px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}.passage-verse-actions>button,.verse-highlight-tools>button,.save-verse-note{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:7px 9px;background:var(--panel);color:var(--text);font-size:10px}.passage-verse-actions>button.is-saved{color:#477451;background:#e9f1e7}.annotation-divider{width:1px;height:24px;background:var(--border);margin:0 3px}.verse-highlight-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.verse-highlight-tools>span{font-size:10px;color:var(--subtext)}.verse-highlight-tools>button.highlight-swatch{width:19px;height:19px;min-width:19px;padding:0;border-radius:50%;border:2px solid rgba(0,0,0,.12)}.highlight-swatch.swatch-yellow{background:#e9c85f}.highlight-swatch.swatch-green{background:#78aa78}.highlight-swatch.swatch-blue{background:#79a9ce}.highlight-swatch.swatch-pink{background:#d99bad}.highlight-swatch.active{outline:2px solid var(--forest);outline-offset:2px}.clear-highlight{font-size:9px!important;padding:5px 7px!important}.verse-note-editor{display:grid;grid-template-columns:1fr auto;gap:7px;width:100%;margin-top:4px}.verse-note-editor label{grid-column:1/-1;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--text)}.verse-note-editor textarea{grid-column:1/-1;width:100%;resize:vertical;min-height:56px;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--page);color:var(--text);font-size:11px;line-height:1.6}.save-verse-note{justify-self:end;background:var(--forest);border-color:var(--forest);color:white;padding:8px 12px}.save-verse-note:disabled{opacity:.6;cursor:wait}@media(max-width:560px){.passage-verse-actions{gap:6px;padding:9px}.annotation-divider{display:none}.verse-highlight-tools{width:100%;padding-top:5px}.verse-note-editor{grid-template-columns:1fr}.save-verse-note{justify-self:stretch}}
+
+
+/* Mobile audit: stack navigation and prevent wide headers from shifting the
+   entire page beyond the viewport on narrow phones. */
+html, body { max-width:100%; overflow-x:clip; }
+.app, .main-shell, .content { min-width:0; max-width:100%; }
+@media (max-width:760px) {
+  .topbar {
+    height:auto !important;
+    min-height:64px;
+    flex-wrap:wrap !important;
+    align-items:center;
+    gap:8px 12px;
+    padding:10px 16px !important;
+    overflow:hidden;
+  }
+  .topbar > .brand {
+    flex:0 0 auto;
+    max-width:100%;
+    margin:0 !important;
+  }
+  .topbar > .top-actions {
+    order:2;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    margin:0 !important;
+    justify-content:flex-start;
+    overflow-x:auto;
+    overflow-y:hidden;
+    flex-wrap:nowrap !important;
+    padding:2px 0 5px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .topbar > .top-actions::-webkit-scrollbar { display:none; }
+  .content { padding-left:17px !important; padding-right:17px !important; }
+  .practice-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .lower-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:380px) {
+  .topbar { padding-left:12px !important; padding-right:12px !important; }
+  .content { padding-left:13px !important; padding-right:13px !important; }
+  .practice-grid { grid-template-columns:minmax(0,1fr); }
+}
