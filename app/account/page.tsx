@@ -6,7 +6,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, Camera, LoaderCircle, LogOut, Save } from "lucide-react";
+import { ArrowLeft, BookOpen, Camera, LoaderCircle, LogOut, Save, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function AccountPage() {
