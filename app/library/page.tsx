@@ -1,4 +1,5 @@
 "use client";
+import NavigationMenu from "../../components/NavigationMenu";
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -186,7 +187,7 @@ export default function ScriptureLibraryPage() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><BookOpen size={22}/></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><Link className="text-link" href="/dashboard">Dashboard <ArrowLeft size={14}/></Link><Link className="text-link" href="/bible">Open Bible <BookOpen size={14}/></Link></div>
+          <div className="top-actions"><NavigationMenu label="Navigate"><Link className="text-link" href="/dashboard"><ArrowLeft size={14}/> Dashboard</Link><Link className="text-link" href="/bible"><BookOpen size={14}/> Open Bible</Link><Link className="text-link" href="/account">Account & profile</Link></NavigationMenu></div>
         </header>
         <div className="content" style={{ maxWidth: 1040, margin: "0 auto", paddingTop: 34, paddingBottom: 60 }}>
           <Link href="/dashboard" className="text-link" style={{ marginBottom: 22, display: "inline-flex" }}><ArrowLeft size={14}/> Back to your space</Link>
