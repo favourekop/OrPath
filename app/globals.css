@@ -566,3 +566,69 @@
  .topbar>.top-actions{gap:6px!important}
  .topbar>.top-actions .text-link{font-size:10px!important}
 }
+
+
+/* Final shared header system: no full-width empty menu overlays or misaligned rows. */
+.topbar{
+  position:relative!important;display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:space-between!important;gap:clamp(8px,1.5vw,20px)!important;
+  width:100%!important;min-width:0!important;min-height:72px!important;height:auto!important;
+  padding:10px clamp(14px,3vw,36px)!important;box-sizing:border-box!important;overflow:visible!important;
+  background:var(--panel,#fff)!important;
+}
+.topbar>.brand{
+  display:flex!important;flex:0 1 auto!important;align-items:center!important;gap:9px!important;
+  width:auto!important;max-width:max-content!important;min-width:0!important;margin:0!important;
+  white-space:nowrap!important;
+}
+.topbar>.brand .brand-mark{flex:0 0 38px!important;width:38px!important;height:38px!important;min-width:38px!important}
+.topbar>.brand .brand-name{display:block!important;align-self:center!important;font-size:23px!important;line-height:1!important;white-space:nowrap!important;margin:0!important;padding:0!important}
+.topbar>.brand .brand-name small{display:block!important;font-size:7px!important;letter-spacing:1.35px!important;line-height:1.2!important;margin-top:5px!important;white-space:nowrap!important}
+.topbar>.breadcrumbs{display:flex!important;flex:1 1 auto!important;align-items:center!important;min-width:0!important;max-width:none!important;overflow:hidden!important;white-space:nowrap!important}
+.topbar>.top-actions{display:flex!important;flex:0 0 auto!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:flex-end!important;
+  gap:clamp(8px,1.4vw,16px)!important;width:auto!important;max-width:none!important;min-width:0!important;margin:0 0 0 auto!important;padding:0!important;white-space:nowrap!important}
+.topbar>.top-actions>*{flex:0 0 auto!important;min-width:0!important;max-width:none!important;white-space:nowrap!important;overflow-wrap:normal!important}
+.topbar>.top-actions .text-link{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;padding:7px 0!important;line-height:1.25!important;font-size:12px!important;white-space:nowrap!important}
+.topbar>.top-actions .top-avatar{display:grid!important;flex:0 0 38px!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;margin:0!important;padding:0!important;border-radius:50%!important;overflow:hidden!important}
+.topbar .top-avatar img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+.orpath-nav-dropdown{display:none!important}
+.dashboard-topbar{justify-content:space-between!important}
+.dashboard-topbar>.breadcrumbs{margin-left:8px}
+.community-topbar{
+  display:flex!important;flex-flow:row nowrap!important;align-items:center!important;justify-content:space-between!important;
+  width:100%!important;min-width:0!important;min-height:72px!important;height:auto!important;
+  padding:10px clamp(14px,3vw,36px)!important;gap:14px!important;box-sizing:border-box!important;
+  border-bottom:1px solid var(--border,#e7e8e0)!important;background:var(--panel,#fff)!important;overflow:visible!important
+}
+.community-brand{display:flex!important;flex:0 1 auto!important;align-items:center!important;gap:9px!important;min-width:0!important;white-space:nowrap!important}
+.community-nav-actions{display:flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:flex-end!important;flex-flow:row nowrap!important;gap:clamp(8px,1.5vw,16px)!important;min-width:0!important}
+.community-nav-actions .community-back{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;white-space:nowrap!important;text-decoration:none!important;font-size:12px!important;color:var(--text,#20312a)!important}
+.community-nav-actions .community-account{display:grid!important;flex:0 0 38px!important;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;margin:0!important;overflow:hidden!important;border-radius:50%!important}
+.community-account img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+@media(max-width:760px){
+ .topbar{min-height:62px!important;padding:8px 12px!important;gap:7px!important}
+ .topbar>.brand{flex:0 1 auto!important;max-width:48%!important;gap:7px!important}
+ .topbar>.brand .brand-mark{flex:0 0 32px!important;width:32px!important;height:32px!important;min-width:32px!important}
+ .topbar>.brand .brand-name{font-size:19px!important}
+ .topbar>.brand .brand-name small{font-size:6px!important;letter-spacing:1px!important}
+ .topbar>.breadcrumbs{display:none!important}
+ .topbar>.top-actions{gap:10px!important}
+ .topbar>.top-actions .text-link{font-size:11px!important}
+ .topbar>.top-actions .text-link[href="/dashboard"],.topbar>.top-actions .text-link[href="/admin"]{display:none!important}
+ .topbar>.top-actions .top-avatar{width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important}
+ .community-topbar{min-height:62px!important;padding:8px 12px!important;gap:8px!important}
+ .community-brand{gap:7px!important;font-size:20px!important}
+ .community-brand-mark{width:32px!important;height:32px!important;flex:0 0 32px!important}
+ .community-nav-actions{gap:10px!important}
+ .community-nav-actions .community-back{font-size:11px!important}
+ .community-nav-actions .community-account{width:36px!important;height:36px!important;min-width:36px!important;flex-basis:36px!important}
+}
+@media(max-width:370px){
+ .topbar{padding-left:9px!important;padding-right:9px!important}
+ .topbar>.brand{max-width:46%!important}
+ .topbar>.brand .brand-name{font-size:17px!important}
+ .topbar>.top-actions{gap:7px!important}
+ .topbar>.top-actions .text-link{font-size:10px!important}
+ .community-topbar{padding-left:9px!important;padding-right:9px!important}
+ .community-nav-actions{gap:7px!important}
+}
