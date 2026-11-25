@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ProfileAvatar from "../../../components/ProfileAvatar";
 import NavigationMenu from "../../../components/NavigationMenu";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Activity, Users, BookOpen, Heart, MessageCircle, HandHeart, ShieldCheck, Flame, Flag, ExternalLink, UsersRound } from "lucide-react";
@@ -49,7 +50,7 @@ export default async function AdminAnalyticsPage() {
   return <main className="app" style={{ minHeight: "100vh" }}><section className="main-shell">
     <header className="topbar">
       <Link className="brand" href="/admin"><span className="brand-mark"><ShieldCheck size={20}/></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>ADMIN ANALYTICS</small></span></Link>
-      <div className="top-actions"><NavigationMenu label="Menu"><Link className="text-link" href="/admin">Admin dashboard</Link><Link className="text-link" href="/admin/content">Content Studio</Link><Link className="text-link" href="/admin/settings">Admin settings</Link><Link className="text-link" href="/dashboard">User dashboard</Link><Link className="text-link" href="/community">Community</Link><Link className="text-link" href="/library">My Library</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label="Open profile" title="Your profile"><Users size={17}/></Link></div>
+      <div className="top-actions"><NavigationMenu label="Menu"><Link className="text-link" href="/admin">Admin dashboard</Link><Link className="text-link" href="/admin/content">Content Studio</Link><Link className="text-link" href="/admin/settings">Admin settings</Link><Link className="text-link" href="/dashboard">User dashboard</Link><Link className="text-link" href="/community">Community</Link><Link className="text-link" href="/library">My Library</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><ProfileAvatar /></div>
     </header>
     <div className="content">
       <div className="page-intro"><span className="section-kicker">PLATFORM INSIGHTS</span><h1>OrPath <em>analytics.</em></h1><p>Reading consistency, community health and platform growth. Private prayer text and personal notes are never displayed.</p></div>
