@@ -1,4 +1,5 @@
 "use client";
+import { BookOpen } from "lucide-react";
 import NavigationMenu from "../../../components/NavigationMenu";
 
 import { useCallback, useEffect, useState } from "react";
@@ -28,7 +29,7 @@ export default function AdminSettingsPage() {
   }
   async function create(event: React.FormEvent) { event.preventDefault(); await action("POST", { email, password }); if (!error) { setEmail(""); setPassword(""); } }
   return <main className="app" style={{ minHeight: "100vh" }}><section className="main-shell">
-    <header className="topbar"><Link className="brand" href="/admin"><span className="brand-mark"><ShieldCheck size={20}/></span><span className="brand-name">orpath<span>.</span><small>ADMIN SETTINGS</small></span></Link><div className="top-actions"><NavigationMenu label="Admin menu"><Link className="text-link" href="/admin"><ArrowLeft size={14}/> Admin dashboard</Link><Link className="text-link" href="/admin/content">Content Studio</Link><Link className="text-link" href="/admin/analytics">Analytics & streaks</Link><Link className="text-link" href="/dashboard">User dashboard</Link></NavigationMenu></div></header>
+    <header className="topbar"><Link className="brand" href="/admin"><span className="brand-mark"><ShieldCheck size={20}/></span><span className="brand-name">orpath<span>.</span><small>ADMIN SETTINGS</small></span></Link><div className="top-actions"><NavigationMenu label="Menu"><Link className="text-link" href="/admin">Admin dashboard</Link><Link className="text-link" href="/admin/content">Content Studio</Link><Link className="text-link" href="/admin/analytics">Analytics & streaks</Link><Link className="text-link" href="/dashboard">User dashboard</Link><Link className="text-link" href="/community">Community</Link><Link className="text-link" href="/library">My Library</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label="Open profile" title="Your profile">U</Link></div></header>
     <div className="content" style={{ maxWidth: 900 }}>
       <div className="page-intro"><span className="section-kicker">SECURITY & ACCESS</span><h1>Admin <em>accounts.</em></h1><p>Create and manage trusted OrPath administrators. Passwords are never displayed after creation.</p></div>
       <section className="continue-panel" style={{ marginTop: 24 }}><div className="panel-heading"><div><span className="section-kicker">NEW ACCESS</span><h2>Create admin account</h2></div><UserPlus size={20}/></div>
