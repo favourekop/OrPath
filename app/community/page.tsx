@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import NavigationMenu from "../../components/NavigationMenu";
 import { ArrowLeft, BookOpen, Check, CircleAlert, Heart, LoaderCircle, LockKeyhole, MessageCircle, Plus, Send, Shield, Sparkles, Users, HandHeart, BookMarked, MoreHorizontal, Copy } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import "./community.css";
@@ -221,9 +222,8 @@ export default function CommunityPage() {
   return (
     <main className="community-app">
       <header className="community-topbar">
-        <Link href="/dashboard" className="community-back"><ArrowLeft size={17}/> Dashboard</Link>
         <Link href="/" className="community-brand"><span className="community-brand-mark"><BookOpen size={19}/></span><span>orpath<span>.</span><small>LET THE WORD LEAD</small></span></Link>
-        <Link href="/account" className="community-account">{ownName.slice(0,1).toUpperCase()}</Link>
+        <div className="community-nav-actions"><NavigationMenu label="Menu"><Link href="/dashboard">Dashboard</Link><Link href="/library">My Library</Link></NavigationMenu><Link href="/" className="community-back"><BookOpen size={16}/> Open Bible</Link><Link href="/account" className="community-account" aria-label="Your profile">{ownName.slice(0,1).toUpperCase()}</Link></div>
       </header>
       <div className="community-layout">
         <aside className="community-intro">
