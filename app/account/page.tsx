@@ -1,5 +1,4 @@
 "use client";
-import NavigationMenu from "../../components/NavigationMenu";
 
 import Image from "next/image";
 
@@ -122,7 +121,8 @@ export default function AccountPage() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><NavigationMenu label="Menu"><Link className="text-link" href="/dashboard"><ArrowLeft size={14}/> Dashboard</Link><Link className="text-link" href="/library">My Library</Link><Link className="text-link" href="/community">Community</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label="Your profile" title="Your profile">{avatarUrl ? <Image src={avatarUrl} alt="" width={36} height={36} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</Link></div>
+          <div className="breadcrumbs"><span>YOUR SPACE</span><span className="crumb-slash">/</span><strong>Account</strong></div>
+          <div className="top-actions"><Link className="text-link" href="/dashboard">Dashboard</Link><Link className="text-link" href="/bible"><BookOpen size={15}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label="Your profile" title="Your profile">{avatarUrl ? <Image src={avatarUrl} alt="" width={36} height={36} unoptimized style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/> : profileInitial}</Link></div>
         </header>
         <div className="account-content">
         <div style={{width:"100%",maxWidth:720,margin:"0 auto"}}>
