@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NavigationMenu from "../../../components/NavigationMenu";
 import { redirect } from "next/navigation";
 import { ArrowLeft, Activity, Users, BookOpen, Heart, MessageCircle, HandHeart, ShieldCheck, Flame, Flag, ExternalLink, UsersRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -48,7 +49,7 @@ export default async function AdminAnalyticsPage() {
   return <main className="app" style={{ minHeight: "100vh" }}><section className="main-shell">
     <header className="topbar">
       <Link className="brand" href="/admin"><span className="brand-mark"><ShieldCheck size={20}/></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>ADMIN ANALYTICS</small></span></Link>
-      <div className="top-actions"><Link className="text-link" href="/admin"><ArrowLeft size={14}/> Dashboard</Link><Link className="text-link" href="/admin/settings">Admin settings</Link></div>
+      <div className="top-actions"><NavigationMenu label="Admin menu"><Link className="text-link" href="/admin"><ArrowLeft size={14}/> Admin dashboard</Link><Link className="text-link" href="/admin/content">Content Studio</Link><Link className="text-link" href="/admin/settings">Admin settings</Link><Link className="text-link" href="/dashboard">User dashboard</Link></NavigationMenu></div>
     </header>
     <div className="content">
       <div className="page-intro"><span className="section-kicker">PLATFORM INSIGHTS</span><h1>OrPath <em>analytics.</em></h1><p>Reading consistency, community health and platform growth. Private prayer text and personal notes are never displayed.</p></div>
