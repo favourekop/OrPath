@@ -647,3 +647,116 @@ html, body { max-width:100%; overflow-x:clip; }
   .content, .account-content { padding-left: 13px !important; padding-right: 13px !important; }
   .practice-grid, .stat-grid { grid-template-columns: minmax(0,1fr) !important; }
 }
+
+
+/* FINAL GLOBAL PHONE LAYOUT — shared by dashboard, admin, Bible, library,
+   account and community shells. Avoid intrinsic-width flex overflow. */
+@media (max-width: 760px) {
+  html, body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: clip !important;
+  }
+  body { margin: 0 !important; }
+  .app {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: clip !important;
+  }
+  .main-shell {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow-x: clip !important;
+  }
+  header.topbar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+    align-content: center !important;
+    justify-content: stretch !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    padding: 10px 14px 8px !important;
+    margin: 0 !important;
+    gap: 9px !important;
+    overflow: hidden !important;
+  }
+  header.topbar > .brand {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+    display: flex !important;
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+  header.topbar > .top-actions {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-self: stretch !important;
+    align-self: stretch !important;
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 5px 0 7px !important;
+    gap: 16px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-inline: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    white-space: nowrap !important;
+  }
+  header.topbar > .top-actions > * {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+  }
+  header.topbar .top-avatar { flex: 0 0 36px !important; }
+  .content, .legal-page-content, .account-content, .community-layout,
+  .community-main, .page-intro, .welcome-row, .continue-panel,
+  .practice-grid, .stat-grid, .lower-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .content { padding-left: 16px !important; padding-right: 16px !important; }
+  .welcome-row { flex-wrap: wrap !important; }
+  .practice-grid, .stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .lower-grid { grid-template-columns: minmax(0,1fr) !important; }
+  .community-topbar { width:100% !important; max-width:100% !important; min-width:0 !important; }
+  img, video, iframe, canvas { max-width:100% !important; }
+  pre, code, p, h1, h2, h3 { overflow-wrap: anywhere; }
+}
+@media (max-width: 420px) {
+  header.topbar { padding-left: 12px !important; padding-right: 12px !important; }
+  header.topbar > .top-actions { gap: 13px !important; }
+  .content { padding-left: 13px !important; padding-right: 13px !important; }
+  .practice-grid, .stat-grid { grid-template-columns: minmax(0,1fr) !important; }
+}
