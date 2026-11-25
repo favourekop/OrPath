@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, BookMarked, CalendarDays, ChartNoAxesColumn, Heart, Home, Library, Settings, ShieldCheck, Users } from "lucide-react";
+import { BookOpen, CalendarDays, ChartNoAxesColumn, Home, Library, Settings, ShieldCheck, Users } from "lucide-react";
 
 type Props = { active?: string; isAdmin?: boolean; displayName?: string; initial?: string; avatarUrl?: string | null };
 
