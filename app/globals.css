@@ -505,3 +505,9 @@
  .orpath-nav-dropdown>summary{min-height:42px;padding:9px 12px}
  .orpath-nav-dropdown-panel{position:absolute;right:0;left:auto;min-width:220px;max-width:calc(100vw - 28px)}
 }
+
+/* Community header: persistent Bible/profile actions; remaining routes live in Menu. */
+.community-nav-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+.community-nav-actions .community-back{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.community-nav-actions .community-account{flex:0 0 auto}
+@media(max-width:760px){.community-nav-actions{gap:8px;flex-wrap:nowrap}.community-nav-actions .community-back{font-size:11px}.community-topbar{gap:10px}}
