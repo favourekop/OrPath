@@ -1,4 +1,5 @@
 import Image from "next/image";
+import NavigationMenu from "../../components/NavigationMenu";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity, FilePlus2 } from "lucide-react";
@@ -32,7 +33,7 @@ export default async function AdminDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><Link className="text-link" href="/admin/content">Content Studio <FilePlus2 size={14}/></Link><Link className="text-link" href="/admin/analytics">Analytics <Activity size={14}/></Link><Link className="text-link" href="/admin/settings">Admin settings <ShieldCheck size={14}/></Link><Link className="text-link" href="/dashboard">User dashboard <ArrowLeft size={14}/></Link></div>
+          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><NavigationMenu label="Admin menu"><Link className="text-link" href="/admin/content"><FilePlus2 size={14}/> Content Studio</Link><Link className="text-link" href="/admin/analytics"><Activity size={14}/> Analytics & streaks</Link><Link className="text-link" href="/admin/settings"><ShieldCheck size={14}/> Admin settings</Link><Link className="text-link" href="/dashboard"><ArrowLeft size={14}/> User dashboard</Link></NavigationMenu></div>
         </header>
         <div className="content">
           <div className="page-intro">
