@@ -1,7 +1,6 @@
 import Image from "next/image";
 import ProfileAvatar from "../../components/ProfileAvatar";
 import { BookOpen } from "lucide-react";
-import NavigationMenu from "../../components/NavigationMenu";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, ShieldCheck, Users, Heart, BookMarked, ListChecks, Activity, FilePlus2 } from "lucide-react";
@@ -35,7 +34,8 @@ export default async function AdminDashboard() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><span className="section-kicker"><ShieldCheck size={14}/> ADMIN CONSOLE</span><NavigationMenu label="Menu"><Link className="text-link" href="/admin/analytics"><Activity size={14}/> Analytics & streaks</Link><Link className="text-link" href="/admin/content"><FilePlus2 size={14}/> Content Studio</Link><Link className="text-link" href="/admin/settings"><ShieldCheck size={14}/> Admin settings</Link><Link className="text-link" href="/dashboard"><ArrowLeft size={14}/> User dashboard</Link><Link className="text-link" href="/community"><Users size={14}/> Community</Link><Link className="text-link" href="/library"><BookOpen size={14}/> My Library</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><ProfileAvatar /></div>
+          <div className="breadcrumbs"><span>ADMIN</span><span className="crumb-slash">/</span><strong>Console</strong></div>
+          <div className="top-actions"><Link className="text-link" href="/dashboard">Dashboard</Link><Link className="text-link" href="/bible"><BookOpen size={15}/> Open Bible</Link><ProfileAvatar /></div>
         </header>
         <div className="content">
           <div className="page-intro">
