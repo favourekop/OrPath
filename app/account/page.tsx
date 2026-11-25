@@ -1,4 +1,5 @@
 "use client";
+import NavigationMenu from "../../components/NavigationMenu";
 
 import Image from "next/image";
 
@@ -121,10 +122,7 @@ export default function AccountPage() {
       <section className="main-shell">
         <header className="topbar">
           <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions">
-            <Link className="text-link" href="/dashboard">Dashboard <ArrowLeft size={14}/></Link>
-            <Link className="text-link" href="/">Open Bible <ArrowLeft size={14}/></Link>
-          </div>
+          <div className="top-actions"><NavigationMenu label="Navigate"><Link className="text-link" href="/dashboard"><ArrowLeft size={14}/> Dashboard</Link><Link className="text-link" href="/">Open Bible</Link><Link className="text-link" href="/library">My Library</Link><Link className="text-link" href="/community">Community</Link></NavigationMenu></div>
         </header>
         <div className="account-content">
         <div style={{width:"100%",maxWidth:720,margin:"0 auto"}}>
