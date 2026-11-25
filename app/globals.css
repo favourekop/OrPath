@@ -485,3 +485,23 @@
   .topbar { padding-left: 11px !important; padding-right: 11px !important; }
   .topbar > .top-actions { gap: 7px 11px !important; }
 }
+
+/* Accessible OrPath navigation dropdown. Native disclosure works without JS. */
+.orpath-nav-dropdown{position:relative;display:inline-flex;align-items:center;z-index:30}
+.orpath-nav-dropdown>summary{list-style:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 12px;border:1px solid var(--border,#e3e6df);border-radius:10px;background:var(--panel,#fff);color:var(--text,#19382c);font:600 12px inherit;cursor:pointer;user-select:none}
+.orpath-nav-dropdown>summary::-webkit-details-marker{display:none}
+.orpath-nav-dropdown>summary:focus-visible,.orpath-nav-dropdown-panel a:focus-visible{outline:3px solid #b9995d;outline-offset:3px}
+.orpath-nav-chevron{transition:transform .18s ease}
+.orpath-nav-dropdown[open] .orpath-nav-chevron{transform:rotate(180deg)}
+.orpath-nav-dropdown-panel{position:absolute;top:calc(100% + 8px);right:0;display:grid;gap:4px;min-width:210px;max-width:min(290px,calc(100vw - 28px));padding:8px;border:1px solid var(--border,#e3e6df);border-radius:13px;background:var(--panel,#fff);box-shadow:0 14px 36px rgba(20,42,31,.16);z-index:100}
+.orpath-nav-dropdown-panel a{display:flex;align-items:center;gap:9px;min-height:40px;padding:9px 10px;border-radius:8px;color:var(--text,#19382c);font-size:12px;font-weight:600;text-decoration:none;white-space:normal}
+.orpath-nav-dropdown-panel a:hover{background:rgba(104,132,110,.12);color:var(--forest,#1c4a37)}
+.dark .orpath-nav-dropdown-panel,.dark .orpath-nav-dropdown>summary{background:var(--panel,#14251c);color:var(--text,#edf2e9);border-color:var(--border,#304538)}
+.dark .orpath-nav-dropdown-panel a{color:var(--text,#edf2e9)}
+@media(max-width:760px){
+ .topbar{min-width:0;max-width:100%;box-sizing:border-box}
+ .topbar>.top-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;min-width:0;max-width:100%}
+ .orpath-nav-dropdown{max-width:100%}
+ .orpath-nav-dropdown>summary{min-height:42px;padding:9px 12px}
+ .orpath-nav-dropdown-panel{position:absolute;right:0;left:auto;min-width:220px;max-width:calc(100vw - 28px)}
+}
