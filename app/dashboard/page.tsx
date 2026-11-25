@@ -132,7 +132,7 @@ export default async function UserDashboard() {
 
   return (
     <main className="app dashboard-layout" style={{ minHeight: "100vh" }}>
-      <DashboardSidebar active="dashboard" isAdmin={profileResult.data?.role === "admin"} displayName={displayName} initial={profileInitial} />
+      <DashboardSidebar active="dashboard" isAdmin={profileResult.data?.role === "admin"} displayName={displayName} initial={profileInitial} avatarUrl={profileResult.data?.avatar_url ?? null} />
       <section className="main-shell">
         <header className="topbar dashboard-topbar">
           <div className="breadcrumbs"><span>YOUR SPACE</span><span className="crumb-slash">/</span><strong>Dashboard</strong></div>
