@@ -1,5 +1,5 @@
 import Image from "next/image";
-import NavigationMenu from "../../components/NavigationMenu";
+import DashboardSidebar from "../../components/DashboardSidebar";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, BookMarked, BookOpen, CalendarDays, Flame, Heart, ListChecks, ShieldCheck, Library, Users } from "lucide-react";
@@ -131,11 +131,12 @@ export default async function UserDashboard() {
   ];
 
   return (
-    <main className="app" style={{ minHeight: "100vh" }}>
+    <main className="app dashboard-layout" style={{ minHeight: "100vh" }}>
+      <DashboardSidebar active="dashboard" isAdmin={profileResult.data?.role === "admin"} displayName={displayName} initial={profileInitial} />
       <section className="main-shell">
-        <header className="topbar">
-          <Link className="brand" href="/"><span className="brand-mark"><Image src="/orpath-logo.svg" alt="OrPath logo" width={40} height={40} unoptimized /></span><span className="brand-name"><span className="brand-word">orpath<span>.</span></span><small>LET THE WORD LEAD</small></span></Link>
-          <div className="top-actions"><NavigationMenu label="Menu">{profileResult.data?.role === "admin" && <Link className="text-link" href="/admin"><ShieldCheck size={15}/> Admin console</Link>}<Link className="text-link" href="/community"><Users size={15}/> Community</Link><Link className="text-link" href="/library"><Library size={15}/> My Library</Link><Link className="text-link" href="/account">Account settings</Link></NavigationMenu><Link className="text-link" href="/"><BookOpen size={15}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label={`Open ${displayName} profile`} title="Your profile" style={{width:36,height:36,borderRadius:"50%",display:"inline-grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13,textDecoration:"none"}}>{profileResult.data?.avatar_url ? <Image src={profileResult.data.avatar_url} alt="" width={36} height={36} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</Link></div>
+        <header className="topbar dashboard-topbar">
+          <div className="breadcrumbs"><span>YOUR SPACE</span><span className="crumb-slash">/</span><strong>Dashboard</strong></div>
+          <div className="top-actions"><Link className="text-link dashboard-open-bible" href="/bible"><BookOpen size={16}/> Open Bible</Link><Link className="top-avatar" href="/account" aria-label={`Open ${displayName} profile`} title="Your profile" style={{width:36,height:36,borderRadius:"50%",display:"inline-grid",placeItems:"center",overflow:"hidden",background:"#e8efe6",color:"#1c4a37",fontWeight:700,fontSize:13,textDecoration:"none"}}>{profileResult.data?.avatar_url ? <Image src={profileResult.data.avatar_url} alt="" width={36} height={36} unoptimized style={{width:"100%",height:"100%",objectFit:"cover"}}/> : profileInitial}</Link></div>
         </header>
         <div className="content">
           <div className="page-intro">
