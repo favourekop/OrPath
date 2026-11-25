@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
 import NavigationMenu from "../../components/NavigationMenu";
 import Link from "next/link";
 import { redirect } from "next/navigation";
