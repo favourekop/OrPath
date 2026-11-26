@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, BookOpen, Heart, Share2 } from "lucide-react";
 
 const groups = [
-  { title: "Explore", links: [{ label: "Home", href: "/" }, { label: "Read the Bible", href: "/bible" }, { label: "About OrPath", href: "/about" }, { label: "Support", href: "/about" }] },
+  { title: "Explore", links: [{ label: "Home", href: "/" }, { label: "Read the Bible", href: "/bible" }, { label: "About OrPath", href: "/about" }, { label: "Support OrPath", href: "/support" }] },
   { title: "Your OrPath", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "Bookmarks", href: "/dashboard" }, { label: "Prayer journal", href: "/dashboard" }, { label: "Account", href: "/account" }] },
   { title: "Information", links: [{ label: "Privacy policy", href: "/privacy" }, { label: "Terms of service", href: "/terms" }, { label: "Contact", href: "/about#contact" }] },
 ];
